@@ -1,0 +1,9 @@
+# Random
+.DS_Store
+
+# LibDragon
+libdragon/
+
+# Build
+build/
+*.z64
