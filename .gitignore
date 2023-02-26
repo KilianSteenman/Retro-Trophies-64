@@ -7,3 +7,6 @@ libdragon/
 # Build
 build/
 *.z64
+
+# Intellij
+.idea/*
