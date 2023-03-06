@@ -28,6 +28,22 @@ void render_screen(display_context_t disp, Trophy *trophies, int trophyCount) {
         }
         draw_trophy(x, ((30 * i) + y), disp, trophies[i]);
     }
+
+    // Check controller input
+    controller_scan();
+    struct controller_data ckeys = get_keys_down();
+
+    if (ckeys.c[0].down) {
+        selected++;
+    } else if(ckeys.c[0].up) {
+        selected--;
+    }
+
+    if(selected == -1) {
+        selected = trophyCount - 1;
+    } else if(selected == trophyCount) {
+        selected = 0;
+    }
 }
 
 Trophy *loadTrophyData(FILE *trophyFile, int *trophyCount) {
@@ -84,7 +100,6 @@ Trophy *loadTrophyData(FILE *trophyFile, int *trophyCount) {
                     sscanf(line, "%s %s", address, value);
                     int addressValue = (int) strtol(address, NULL, 16);
                     int valueValue = (int) strtol(value, NULL, 2);
-//                    printf("Address %d value %d (%s)\n", addressValue, valueValue, value);
 
                     Requirement requirement = {.address = addressValue, .value = valueValue};
                     trophies[i].requirements[c] = requirement;
@@ -94,6 +109,32 @@ Trophy *loadTrophyData(FILE *trophyFile, int *trophyCount) {
     }
 
     return trophies;
+}
+
+int isTrophyCollected(FILE *saveState, Trophy trophy) {
+    int result = 1;
+    if (trophy.type == OR) {
+        result = 0;
+    } else {
+        result = 1;
+    }
+
+    for (int i = 0; i < trophy.requirementCount; i++) {
+        Requirement requirement = trophy.requirements[i];
+
+        fseek(saveState, requirement.address, SEEK_SET);
+
+        char buffer[1];
+        fread(buffer, 1, sizeof(buffer), saveState);
+        int bit = (buffer[0] & requirement.value) == requirement.value;
+        if (trophy.type == OR) {
+            result = result | bit;
+        } else if (trophy.type == COUNT) {
+            result = result & bit;
+        }
+    }
+
+    return result;
 }
 
 int main(void) {
@@ -106,15 +147,26 @@ int main(void) {
     debug_init_usblog();
     console_set_debug(true);
 
-    FILE *fp = fopen("rom:/MARIO64.dat", "r");
-    if (!fp) {
+    FILE *coinData = fopen("rom:/MARIO64.dat", "r");
+    if (!coinData) {
         printf("Error loading coin data\n");
         return 0;
     }
 
     int trophyCount;
-    Trophy *trophies = loadTrophyData(fp, &trophyCount);
-    fclose(fp);
+    Trophy *trophies = loadTrophyData(coinData, &trophyCount);
+    fclose(coinData);
+
+    // Check if trophies are collected
+    FILE *saveState = fopen("rom:/SuperMario64.eep", "r");
+    if(saveState == NULL) {
+        printf("Save state not available");
+        return 1;
+    }
+    for(int i = 0; i < trophyCount; i++) {
+        trophies[i].isCollected = isTrophyCollected(saveState, trophies[i]);
+    }
+    fclose(saveState);
 
     while (1) {
         /* Grab a render buffer */
@@ -128,17 +180,5 @@ int main(void) {
 
         /* Force backbuffer flip */
         display_show(disp);
-
-        // Check controller input
-        controller_scan();
-        struct controller_data ckeys = get_keys_down();
-
-        if (ckeys.c[0].start) {
-            if (selected == 7) {
-                selected = 0;
-            } else {
-                selected++;
-            }
-        }
     }
 }
