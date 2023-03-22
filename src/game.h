@@ -14,10 +14,30 @@ typedef struct {
 } Game;
 
 void getGameStatus(Game game, int *bronzeCount, int *silverCount, int *goldCount, int *percentageCompleted) {
-    *bronzeCount = 10;
-    *silverCount = 3;
-    *goldCount = 1;
-    *percentageCompleted = 27;
+    int completedCount = 0;
+    for (int i = 0; i < game.trophyCount; i++) {
+        if (!game.trophies[i].isCollected) {
+            continue;
+        }
+
+        completedCount++;
+        switch (game.trophies[i].level) {
+            case BONUS:
+                *bronzeCount = *bronzeCount + 1;
+                break;
+            case MILESTONE:
+                *silverCount = *silverCount + 1;
+                break;
+            case FINISHED:
+                *goldCount = *goldCount + 1;
+                break;
+            case COMPLETED:
+                // TODO: Implement if wanted?
+                break;
+        }
+    }
+
+    *percentageCompleted = ((float)completedCount / game.trophyCount * 100.0f);
 }
 
 #endif //N64_ACHIEVEMENT_COINS_GAME_H

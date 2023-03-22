@@ -22,28 +22,41 @@ void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
 }
 
 void graphics_draw_number(display_context_t disp, int x, int y, int number) {
-    char buffer[5];
+    char buffer[11];
     sprintf(buffer, "%d", number);
     graphics_draw_text(disp, x, y, buffer);
 }
 
+void graphics_draw_progressbar(display_context_t disp, int x, int y, int width, int height, int percentageCompleted) {
+    // TODO: Draw progressbar
+}
+
 void draw_game_tile(display_context_t disp, int x, int y, Game game) {
-    graphics_draw_text(disp, x, y, game.title);
+    graphics_draw_box(disp, x, y, 620, 25, graphics_make_color(14, 128, 17, 255));
+    graphics_draw_text(disp, x + 5, y + 5, game.title);
 
     int bronzeCount = 0;
     int silverCount = 0;
     int goldCount = 0;
     int percentageCompleted = 0;
     getGameStatus(game, &bronzeCount, &silverCount, &goldCount, &percentageCompleted);
-    graphics_draw_number(disp, x, y + 10, bronzeCount);
-    graphics_draw_number(disp, x + 30, y + 10, silverCount);
-    graphics_draw_number(disp, x + 60, y + 10, goldCount);
-    graphics_draw_number(disp, x + 90, y + 10, percentageCompleted);
+
+    // Percentage
+    char percentageBuffer[12];
+    sprintf(percentageBuffer, "%d%%", percentageCompleted);
+    graphics_draw_text(disp, x + 450, y + 5, percentageBuffer);
+    graphics_draw_progressbar(disp, x + 420, y + 10, 30, 5, percentageCompleted);
+
+    // Trophy counts
+    graphics_draw_number(disp, x + 500, y + 5, bronzeCount);
+    graphics_draw_number(disp, x + 530, y + 5, silverCount);
+    graphics_draw_number(disp, x + 560, y + 5, goldCount);
 }
 
 void on_game_selected(Game *game) {
     selectedGame = game;
     state = TROPHY_OVERVIEW;
+    selectedTrophy = 0;
 }
 
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
@@ -235,6 +248,7 @@ int loadGameData(Game *game, char *title, char *saveGame, char *trophyFile) {
 
 int main(void) {
     display_init(RESOLUTION_320x240, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
+    //rdp_init();
     dfs_init(DFS_DEFAULT_LOCATION);
 
     console_init();
@@ -243,9 +257,10 @@ int main(void) {
     debug_init_usblog();
     console_set_debug(true);
 
-    Game games[2];
+    Game games[3];
     loadGameData(&games[0], "Super Mario 64", "rom:/SuperMario64.eep", "rom:/MARIO64.dat");
     loadGameData(&games[1], "Super Mario 64 - 100%", "rom:/SuperMario64_100.eep", "rom:/MARIO64.dat");
+    loadGameData(&games[2], "Super Smash bros", "rom:/ssb_cf_unlocked.ram", "rom:/SSB.dat");
 
     while (1) {
         /* Grab a render buffer */
@@ -256,10 +271,12 @@ int main(void) {
 
         /* Render the screen */
         if (state == GAME_SELECT) {
-            render_game_select_screen(disp, games, 2);
+            render_game_select_screen(disp, games, 3);
         } else if (state == TROPHY_OVERVIEW) {
             render_screen(disp, *selectedGame);
         }
+
+        //rdp_detach_display();
 
         /* Force backbuffer flip */
         display_show(disp);
