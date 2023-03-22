@@ -3,30 +3,60 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "game.h"
 #include "trophy.h"
+
+typedef enum {
+    GAME_SELECT,
+    TROPHY_OVERVIEW
+} State;
+
+static State state = GAME_SELECT;
+static Game *selectedGame;
+static int selectedGameIndex = 0;
+static int selectedTrophy = 0;
 
 void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
     graphics_draw_text(disp, x, y, trophy.title);
     graphics_draw_text(disp, x, y + 10, trophy.description);
 }
 
-static int selected = 0;
+void graphics_draw_number(display_context_t disp, int x, int y, int number) {
+    char buffer[5];
+    sprintf(buffer, "%d", number);
+    graphics_draw_text(disp, x, y, buffer);
+}
 
-void render_screen(display_context_t disp, Trophy *trophies, int trophyCount) {
-    /* Set the text output color */
-    graphics_set_color(0xFFFFFFFF, 0x0);
+void draw_game_tile(display_context_t disp, int x, int y, Game game) {
+    graphics_draw_text(disp, x, y, game.title);
 
-    int x = 10;
-    int y = 10;
-    for (int i = 0; i < trophyCount; i++) {
-        if (i == selected) {
+    int bronzeCount = 0;
+    int silverCount = 0;
+    int goldCount = 0;
+    int percentageCompleted = 0;
+    getGameStatus(game, &bronzeCount, &silverCount, &goldCount, &percentageCompleted);
+    graphics_draw_number(disp, x, y + 10, bronzeCount);
+    graphics_draw_number(disp, x + 30, y + 10, silverCount);
+    graphics_draw_number(disp, x + 60, y + 10, goldCount);
+    graphics_draw_number(disp, x + 90, y + 10, percentageCompleted);
+}
+
+void on_game_selected(Game *game) {
+    selectedGame = game;
+    state = TROPHY_OVERVIEW;
+}
+
+void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
+    for (int i = 0; i < gameCount; i++) {
+
+        /* Set the text output color */
+        if (i == selectedGameIndex) {
             graphics_set_color(0xFFFFFFFF, 0x0);
-        } else if (trophies[i].isCollected == 1) {
-            graphics_set_color(graphics_make_color(0, 255, 0, 255), 0x0);
         } else {
-            graphics_set_color(graphics_make_color(0, 0, 255, 255), 0x0);
+            graphics_set_color(0xFF0000FF, 0x0);
         }
-        draw_trophy(x, ((30 * i) + y), disp, trophies[i]);
+
+        draw_game_tile(disp, 10, i * 30 + 10, games[i]);
     }
 
     // Check controller input
@@ -34,15 +64,57 @@ void render_screen(display_context_t disp, Trophy *trophies, int trophyCount) {
     struct controller_data ckeys = get_keys_down();
 
     if (ckeys.c[0].down) {
-        selected++;
-    } else if(ckeys.c[0].up) {
-        selected--;
+        selectedGameIndex++;
+    } else if (ckeys.c[0].up) {
+        selectedGameIndex--;
     }
 
-    if(selected == -1) {
-        selected = trophyCount - 1;
-    } else if(selected == trophyCount) {
-        selected = 0;
+    if (selectedGameIndex == -1) {
+        selectedGameIndex = gameCount - 1;
+    } else if (selectedGameIndex == gameCount) {
+        selectedGameIndex = 0;
+    }
+
+    if(ckeys.c[0].A) {
+        on_game_selected(&games[selectedGameIndex]);
+    }
+}
+
+void render_screen(display_context_t disp, Game game) {
+    /* Set the text output color */
+    graphics_set_color(0xFFFFFFFF, 0x0);
+
+    int x = 10;
+    int y = 10;
+    for (int i = 0; i < game.trophyCount; i++) {
+        if (i == selectedTrophy) {
+            graphics_set_color(0xFFFFFFFF, 0x0);
+        } else if (game.trophies[i].isCollected == 1) {
+            graphics_set_color(graphics_make_color(0, 255, 0, 255), 0x0);
+        } else {
+            graphics_set_color(graphics_make_color(0, 0, 255, 255), 0x0);
+        }
+        draw_trophy(x, ((30 * i) + y), disp, game.trophies[i]);
+    }
+
+    // Check controller input
+    controller_scan();
+    struct controller_data ckeys = get_keys_down();
+
+    if (ckeys.c[0].down) {
+        selectedTrophy++;
+    } else if (ckeys.c[0].up) {
+        selectedTrophy--;
+    }
+
+    if (selectedTrophy == -1) {
+        selectedTrophy = game.trophyCount - 1;
+    } else if (selectedTrophy == game.trophyCount) {
+        selectedTrophy = 0;
+    }
+
+    if(ckeys.c[0].B) {
+        state = GAME_SELECT;
     }
 }
 
@@ -137,6 +209,30 @@ int isTrophyCollected(FILE *saveState, Trophy trophy) {
     return result;
 }
 
+int loadGameData(Game *game, char *title, char *saveGame, char *trophyFile) {
+    FILE *coinData = fopen(trophyFile, "r");
+    if (!coinData) {
+        printf("Error loading coin data\n");
+        return 0;
+    }
+
+    strcpy(game->title, title);
+    game->trophies = loadTrophyData(coinData, &game->trophyCount);
+    fclose(coinData);
+
+    // Check if trophies are collected
+    FILE *saveState = fopen(saveGame, "r");
+    if (saveState == NULL) {
+        printf("Save state not available");
+        return 0;
+    }
+    for (int i = 0; i < game->trophyCount; i++) {
+        game->trophies[i].isCollected = isTrophyCollected(saveState, game->trophies[i]);
+    }
+    fclose(saveState);
+    return 1;
+}
+
 int main(void) {
     display_init(RESOLUTION_320x240, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
     dfs_init(DFS_DEFAULT_LOCATION);
@@ -147,26 +243,9 @@ int main(void) {
     debug_init_usblog();
     console_set_debug(true);
 
-    FILE *coinData = fopen("rom:/MARIO64.dat", "r");
-    if (!coinData) {
-        printf("Error loading coin data\n");
-        return 0;
-    }
-
-    int trophyCount;
-    Trophy *trophies = loadTrophyData(coinData, &trophyCount);
-    fclose(coinData);
-
-    // Check if trophies are collected
-    FILE *saveState = fopen("rom:/SuperMario64.eep", "r");
-    if(saveState == NULL) {
-        printf("Save state not available");
-        return 1;
-    }
-    for(int i = 0; i < trophyCount; i++) {
-        trophies[i].isCollected = isTrophyCollected(saveState, trophies[i]);
-    }
-    fclose(saveState);
+    Game games[2];
+    loadGameData(&games[0], "Super Mario 64", "rom:/SuperMario64.eep", "rom:/MARIO64.dat");
+    loadGameData(&games[1], "Super Mario 64 - 100%", "rom:/SuperMario64_100.eep", "rom:/MARIO64.dat");
 
     while (1) {
         /* Grab a render buffer */
@@ -176,7 +255,11 @@ int main(void) {
         graphics_fill_screen(disp, 0x0);
 
         /* Render the screen */
-        render_screen(disp, trophies, trophyCount);
+        if (state == GAME_SELECT) {
+            render_game_select_screen(disp, games, 2);
+        } else if (state == TROPHY_OVERVIEW) {
+            render_screen(disp, *selectedGame);
+        }
 
         /* Force backbuffer flip */
         display_show(disp);
