@@ -56,9 +56,9 @@ void graphics_draw_number(display_context_t disp, int x, int y, int number) {
     graphics_draw_text(disp, x, y, buffer);
 }
 
-void graphics_draw_progressbar(display_context_t disp, int x, int y, int width, int height, int percentageCompleted) {
-    graphics_draw_box(disp, x, y, width, height, graphics_make_color(255, 255, 255, 255));
-    graphics_draw_box(disp, x, y, width * ((float)percentageCompleted / 100.0f), height, graphics_make_color(255, 0, 0, 255));
+void graphics_draw_progressbar(display_context_t disp, int x, int y, int width, int height, uint32_t bgColor, uint32_t fillColor, int percentageCompleted) {
+    graphics_draw_box(disp, x, y, width, height, bgColor);
+    graphics_draw_box(disp, x, y, width * ((float)percentageCompleted / 100.0f), height, fillColor);
 }
 
 void draw_game_tile(display_context_t disp, int x, int y, Game game) {
@@ -75,7 +75,7 @@ void draw_game_tile(display_context_t disp, int x, int y, Game game) {
     char percentageBuffer[12];
     sprintf(percentageBuffer, "%d%%", percentageCompleted);
     graphics_draw_text(disp, x + 450, y + 5, percentageBuffer);
-    graphics_draw_progressbar(disp, x + 450, y + 15, 30, 3, percentageCompleted);
+    graphics_draw_progressbar(disp, x + 450, y + 15, 30, 3, graphics_make_color(255, 255, 255, 255), graphics_make_color(255, 0, 0, 255), percentageCompleted);
 
     // Trophy counts
     graphics_draw_number(disp, x + 500, y + 5, bronzeCount);
