@@ -11,6 +11,8 @@ typedef enum {
     TROPHY_OVERVIEW
 } State;
 
+sprite_t *testSprite;
+
 static State state = GAME_SELECT;
 static Game *selectedGame;
 static int selectedGameIndex = 0;
@@ -21,8 +23,9 @@ void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
     graphics_draw_text(disp, x, y + 10, trophy.description);
 }
 
-void get_trophy_totals(Game *games, int gameCount, int *bronzeCount, int *silverCount, int *goldCount, int* completedCount) {
-    for(int g = 0; g < gameCount; g++) {
+void
+get_trophy_totals(Game *games, int gameCount, int *bronzeCount, int *silverCount, int *goldCount, int *completedCount) {
+    for (int g = 0; g < gameCount; g++) {
         Game game = games[g];
         for (int i = 0; i < game.trophyCount; i++) {
             if (!game.trophies[i].isCollected) {
@@ -54,7 +57,8 @@ void graphics_draw_number(display_context_t disp, int x, int y, int number) {
 }
 
 void graphics_draw_progressbar(display_context_t disp, int x, int y, int width, int height, int percentageCompleted) {
-    // TODO: Draw progressbar
+    graphics_draw_box(disp, x, y, width, height, graphics_make_color(255, 255, 255, 255));
+    graphics_draw_box(disp, x, y, width * ((float)percentageCompleted / 100.0f), height, graphics_make_color(255, 0, 0, 255));
 }
 
 void draw_game_tile(display_context_t disp, int x, int y, Game game) {
@@ -71,7 +75,7 @@ void draw_game_tile(display_context_t disp, int x, int y, Game game) {
     char percentageBuffer[12];
     sprintf(percentageBuffer, "%d%%", percentageCompleted);
     graphics_draw_text(disp, x + 450, y + 5, percentageBuffer);
-    graphics_draw_progressbar(disp, x + 420, y + 10, 30, 5, percentageCompleted);
+    graphics_draw_progressbar(disp, x + 450, y + 15, 30, 3, percentageCompleted);
 
     // Trophy counts
     graphics_draw_number(disp, x + 500, y + 5, bronzeCount);
@@ -92,6 +96,8 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
     graphics_draw_number(disp, 50, 10, silverCount);
     graphics_draw_number(disp, 90, 10, goldCount);
     graphics_draw_number(disp, 130, 10, completedCount);
+
+    graphics_draw_sprite(disp, 10, 10, testSprite);
 
     for (int i = 0; i < gameCount; i++) {
 
@@ -121,7 +127,7 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
         selectedGameIndex = 0;
     }
 
-    if(ckeys.c[0].A) {
+    if (ckeys.c[0].A) {
         on_game_selected(&games[selectedGameIndex]);
     }
 }
@@ -159,7 +165,7 @@ void render_screen(display_context_t disp, Game game) {
         selectedTrophy = 0;
     }
 
-    if(ckeys.c[0].B) {
+    if (ckeys.c[0].B) {
         state = GAME_SELECT;
     }
 }
@@ -281,7 +287,6 @@ int loadGameData(Game *game, char *title, char *saveGame, char *trophyFile) {
 
 int main(void) {
     display_init(RESOLUTION_320x240, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
-    //rdp_init();
     dfs_init(DFS_DEFAULT_LOCATION);
 
     console_init();
@@ -289,6 +294,12 @@ int main(void) {
 
     debug_init_usblog();
     console_set_debug(true);
+
+    // Test sprite rendering
+    int fp = dfs_open("/earthbound.sprite");
+    testSprite = malloc(dfs_size(fp));
+    dfs_read(testSprite, 1, dfs_size(fp), fp);
+    dfs_close(fp);
 
     Game games[3];
     loadGameData(&games[0], "Super Mario 64", "rom:/SuperMario64.eep", "rom:/MARIO64.dat");
