@@ -21,6 +21,32 @@ void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
     graphics_draw_text(disp, x, y + 10, trophy.description);
 }
 
+void get_trophy_totals(Game *games, int gameCount, int *bronzeCount, int *silverCount, int *goldCount, int* completedCount) {
+    for(int g = 0; g < gameCount; g++) {
+        Game game = games[g];
+        for (int i = 0; i < game.trophyCount; i++) {
+            if (!game.trophies[i].isCollected) {
+                continue;
+            }
+
+            switch (game.trophies[i].level) {
+                case BONUS:
+                    *bronzeCount = *bronzeCount + 1;
+                    break;
+                case MILESTONE:
+                    *silverCount = *silverCount + 1;
+                    break;
+                case FINISHED:
+                    *goldCount = *goldCount + 1;
+                    break;
+                case COMPLETED:
+                    *completedCount = *completedCount + 1;
+                    break;
+            }
+        }
+    }
+}
+
 void graphics_draw_number(display_context_t disp, int x, int y, int number) {
     char buffer[11];
     sprintf(buffer, "%d", number);
@@ -60,6 +86,13 @@ void on_game_selected(Game *game) {
 }
 
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
+    int bronzeCount = 0, silverCount = 0, goldCount = 0, completedCount = 0;
+    get_trophy_totals(games, gameCount, &bronzeCount, &silverCount, &goldCount, &completedCount);
+    graphics_draw_number(disp, 10, 10, bronzeCount);
+    graphics_draw_number(disp, 50, 10, silverCount);
+    graphics_draw_number(disp, 90, 10, goldCount);
+    graphics_draw_number(disp, 130, 10, completedCount);
+
     for (int i = 0; i < gameCount; i++) {
 
         /* Set the text output color */
@@ -69,7 +102,7 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
             graphics_set_color(0xFF0000FF, 0x0);
         }
 
-        draw_game_tile(disp, 10, i * 30 + 10, games[i]);
+        draw_game_tile(disp, 10, i * 30 + 30, games[i]);
     }
 
     // Check controller input
