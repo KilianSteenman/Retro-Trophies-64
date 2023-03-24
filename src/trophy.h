@@ -19,7 +19,8 @@ typedef enum TrophyLevel {
 
 typedef enum RequirementType {
     COUNT,
-    OR
+    OR,
+    BOOL
 } RequirementType;
 
 typedef struct Trophy {

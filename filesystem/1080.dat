@@ -1,0 +1,25 @@
+TROPHY_COUNT 4
+COIN;Enter the cold;Finish easy difficulty;GE;2;1
+1FB;USHORT;1
+COIN;Powder Threat;Finish medium difficulty;GE;3;1
+1FB;USHORT;1
+COIN;Stick with it;Finish hard difficulty;GE;4;1
+1FB;USHORT;1
+COIN;Wit's Thicket;Finish expert difficulty;GE;5;1
+1FB;USHORT;1
+COIN;Wit's Thicket;Finish expert difficulty;GE;5;1
+1FB;USHORT;1
+
+// value >= 2
+Greater then 2, 1 condition,
+- multiplier 1
+
+// count = 120
+Equals 120, 120 condition,
+- multiplier 1 (* times 120)
+
+// time less then 1:30:00
+Less then 9000, 3 conditions,
+- milis multiplier 1,
+- seconds multiplier 100,
+- minutes multiplier 600
