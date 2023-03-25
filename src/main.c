@@ -34,16 +34,16 @@ get_trophy_totals(Game *games, int gameCount, int *bronzeCount, int *silverCount
             }
 
             switch (game.trophies[i].level) {
-                case BONUS:
+                case BRONZE:
                     *bronzeCount = *bronzeCount + 1;
                     break;
-                case MILESTONE:
+                case SILVER:
                     *silverCount = *silverCount + 1;
                     break;
-                case FINISHED:
+                case GOLD:
                     *goldCount = *goldCount + 1;
                     break;
-                case COMPLETED:
+                case PLATINUM:
                     *completedCount = *completedCount + 1;
                     break;
             }
@@ -203,7 +203,7 @@ int main(void) {
 
     int gameCount = 1;
     Game games[gameCount];
-    loadGameData(&games[0], "rom:/1080.ram", getGameData1080);
+    loadGameData(&games[0], "rom:/1080.ram", get_game_data_1080);
 //    loadGameData(&games[0], "1080 Snowboarding", "rom:/1080.ram", "rom:/1080.dat");
 //    loadGameData(&games[1], "Super Mario 64", "rom:/SuperMario64.eep", "rom:/MARIO64.dat");
 //    loadGameData(&games[2], "Super Mario 64 - 100%", "rom:/SuperMario64_100.eep", "rom:/MARIO64.dat");

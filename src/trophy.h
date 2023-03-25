@@ -11,10 +11,10 @@ typedef struct {
 } Requirement;
 
 typedef enum {
-    BONUS,
-    MILESTONE,
-    FINISHED,
-    COMPLETED
+    BRONZE,
+    SILVER,
+    GOLD,
+    PLATINUM
 } TrophyLevel;
 
 typedef enum {
