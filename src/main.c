@@ -5,6 +5,7 @@
 
 #include "game.h"
 #include "trophy.h"
+#include "./games/1080.c"
 
 typedef enum {
     GAME_SELECT,
@@ -185,7 +186,7 @@ Trophy *loadTrophyData(FILE *trophyFile, int *trophyCount) {
     char title[50];
     char description[120];
     char type[10];
-    int count;
+    int conditionCount;
 
     // Load trophy data
     Trophy *trophies = (Trophy *) malloc(sizeof(Trophy) * *trophyCount);
@@ -205,7 +206,7 @@ Trophy *loadTrophyData(FILE *trophyFile, int *trophyCount) {
             ptr = strtok(NULL, delim);
             strcpy(type, ptr);
             ptr = strtok(NULL, delim);
-            count = (int) strtol(ptr, NULL, 10);
+            conditionCount = (int) strtol(ptr, NULL, 10);
 
             // Parse type info
             if (strcmp(type, "COUNT") == 0) {
@@ -218,33 +219,33 @@ Trophy *loadTrophyData(FILE *trophyFile, int *trophyCount) {
 
             strcpy(trophies[i].title, title);
             strcpy(trophies[i].description, description);
-            trophies[i].requirements = (Requirement *) malloc(sizeof(Requirement) * count);
-            trophies[i].requirementCount = count;
+            trophies[i].requirements = (Requirement *) malloc(sizeof(Requirement) * conditionCount);
+            trophies[i].requirementCount = conditionCount;
 
             // Load requirement data
-            for (int c = 0; c < count; c++) {
+            for (int c = 0; c < conditionCount; c++) {
                 if (fgets(line, 150, trophyFile) != NULL) {
-                    ptr = strtok(line, delim);
-                    strcpy(level, ptr);
-
-                    ptr = strtok(NULL, delim);
-                    strcpy(title, ptr);
-                    ptr = strtok(NULL, delim);
-                    strcpy(description, ptr);
-                    ptr = strtok(NULL, delim);
-                    strcpy(type, ptr);
-                    ptr = strtok(NULL, delim);
-                    count = (int) strtol(ptr, NULL, 10);
-
-                    char address[10];
-                    char value[10];
-
-                    sscanf(line, "%s %s", address, value);
-                    int addressValue = (int) strtol(address, NULL, 16);
-                    int valueValue = (int) strtol(value, NULL, 2);
-
-                    Requirement requirement = {.address = addressValue, .value = valueValue};
-                    trophies[i].requirements[c] = requirement;
+//                    ptr = strtok(line, delim);
+//                    strcpy(level, ptr);
+//
+//                    ptr = strtok(NULL, delim);
+//                    strcpy(title, ptr);
+//                    ptr = strtok(NULL, delim);
+//                    strcpy(description, ptr);
+//                    ptr = strtok(NULL, delim);
+//                    strcpy(type, ptr);
+//                    ptr = strtok(NULL, delim);
+//                    count = (int) strtol(ptr, NULL, 10);
+//
+//                    char address[10];
+//                    char value[10];
+//
+//                    sscanf(line, "%s %s", address, value);
+//                    int addressValue = (int) strtol(address, NULL, 16);
+//                    int valueValue = (int) strtol(value, NULL, 2);
+//
+//                    Requirement requirement = {.address = addressValue, .value = valueValue};
+//                    trophies[i].requirements[c] = requirement;
                 }
             }
         }
@@ -321,7 +322,16 @@ int main(void) {
 
     int gameCount = 1;
     Game games[gameCount];
-    loadGameData(&games[0], "1080 Snowboarding", "rom:/1080.ram", "rom:/1080.dat");
+
+    FILE *saveState = fopen("rom:/11080.ram", "r");
+    if (saveState == NULL) {
+        printf("Save state not available");
+        while(1) {}
+        return 0;
+    }
+    getGameData1080(&games[0], saveState);
+    fclose(saveState);
+//    loadGameData(&games[0], "1080 Snowboarding", "rom:/1080.ram", "rom:/1080.dat");
 //    loadGameData(&games[1], "Super Mario 64", "rom:/SuperMario64.eep", "rom:/MARIO64.dat");
 //    loadGameData(&games[2], "Super Mario 64 - 100%", "rom:/SuperMario64_100.eep", "rom:/MARIO64.dat");
 //    loadGameData(&games[3], "Super Smash bros", "rom:/ssb_cf_unlocked.ram", "rom:/SSB.dat");

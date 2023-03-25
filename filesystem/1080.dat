@@ -1,14 +1,20 @@
-TROPHY_COUNT 4
-COIN;Enter the cold;Finish easy difficulty;GE;2;1
+TROPHY_COUNT 5
+COIN;Enter the cold;Finish easy difficulty;BOOL;1
+GE;2;1 // Greater then 2, 1 value
+1FB;USHORT;1 // Address, Size, Multiplier
+COIN;Powder Threat;Finish medium difficulty;BOOL;1
+GE;3;1 // Greater then 3, 1 value
 1FB;USHORT;1
-COIN;Powder Threat;Finish medium difficulty;GE;3;1
+COIN;Stick with it;Finish hard difficulty;BOOL;1
+GE;4;1 // Greater then 4, 1 value
 1FB;USHORT;1
-COIN;Stick with it;Finish hard difficulty;GE;4;1
-1FB;USHORT;1
-COIN;Wit's Thicket;Finish expert difficulty;GE;5;1
-1FB;USHORT;1
-COIN;Wit's Thicket;Finish expert difficulty;GE;5;1
-1FB;USHORT;1
+COIN;Wit's Thicket;Finish expert difficulty;BOOL;1
+GE;5;1 // Greater then 5, 1 value
+COIN;Speedo;Beat the highscore;BOOL;1
+L;9000;3 // Less then 9000, 3 values
+6D;BYTE;1 // Address, Size, Multiplier
+6E;BYTE;100 // Address, Size, Multiplier
+6F;BYTE;600 // Address, Size, Multiplier
 
 // value >= 2
 Greater then 2, 1 condition,
