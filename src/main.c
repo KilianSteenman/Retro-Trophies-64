@@ -173,135 +173,16 @@ void render_screen(display_context_t disp, Game game) {
     }
 }
 
-Trophy *loadTrophyData(FILE *trophyFile, int *trophyCount) {
-    char line[150];
-
-    // Read trophy count
-    if (fgets(line, 150, trophyFile) != NULL) {
-        sscanf(line, "TROPHY_COUNT %d", trophyCount);
-    }
-    printf("Trophy Count: %d\n", *trophyCount);
-
-    char level[10];
-    char title[50];
-    char description[120];
-    char type[10];
-    int conditionCount;
-
-    // Load trophy data
-    Trophy *trophies = (Trophy *) malloc(sizeof(Trophy) * *trophyCount);
-    for (int i = 0; i < *trophyCount; i++) {
-        // Read a trophy
-        if (fgets(line, 150, trophyFile) != NULL) {
-
-            // Sample: STAR;Stargazer;COUNT;120
-            char delim[] = ";";
-            char *ptr = strtok(line, delim);
-
-            strcpy(level, ptr);
-            ptr = strtok(NULL, delim);
-            strcpy(title, ptr);
-            ptr = strtok(NULL, delim);
-            strcpy(description, ptr);
-            ptr = strtok(NULL, delim);
-            strcpy(type, ptr);
-            ptr = strtok(NULL, delim);
-            conditionCount = (int) strtol(ptr, NULL, 10);
-
-            // Parse type info
-            if (strcmp(type, "COUNT") == 0) {
-                trophies[i].type = COUNT;
-            } else if (strcmp(type, "OR") == 0) {
-                trophies[i].type = OR;
-            } else if(strcmp(type, "BOOL") == 0) {
-                trophies[i].type = BOOL;
-            }
-
-            strcpy(trophies[i].title, title);
-            strcpy(trophies[i].description, description);
-            trophies[i].requirements = (Requirement *) malloc(sizeof(Requirement) * conditionCount);
-            trophies[i].requirementCount = conditionCount;
-
-            // Load requirement data
-            for (int c = 0; c < conditionCount; c++) {
-                if (fgets(line, 150, trophyFile) != NULL) {
-//                    ptr = strtok(line, delim);
-//                    strcpy(level, ptr);
-//
-//                    ptr = strtok(NULL, delim);
-//                    strcpy(title, ptr);
-//                    ptr = strtok(NULL, delim);
-//                    strcpy(description, ptr);
-//                    ptr = strtok(NULL, delim);
-//                    strcpy(type, ptr);
-//                    ptr = strtok(NULL, delim);
-//                    count = (int) strtol(ptr, NULL, 10);
-//
-//                    char address[10];
-//                    char value[10];
-//
-//                    sscanf(line, "%s %s", address, value);
-//                    int addressValue = (int) strtol(address, NULL, 16);
-//                    int valueValue = (int) strtol(value, NULL, 2);
-//
-//                    Requirement requirement = {.address = addressValue, .value = valueValue};
-//                    trophies[i].requirements[c] = requirement;
-                }
-            }
-        }
-    }
-
-    return trophies;
-}
-
-int isTrophyCollected(FILE *saveState, Trophy trophy) {
-    int result = 1;
-    if (trophy.type == OR) {
-        result = 0;
-    } else {
-        result = 1;
-    }
-
-    for (int i = 0; i < trophy.requirementCount; i++) {
-        Requirement requirement = trophy.requirements[i];
-
-        fseek(saveState, requirement.address, SEEK_SET);
-
-        char buffer[1];
-        fread(buffer, 1, sizeof(buffer), saveState);
-        int bit = (buffer[0] & requirement.value) == requirement.value;
-        if (trophy.type == OR) {
-            result = result | bit;
-        } else if (trophy.type == COUNT) {
-            result = result & bit;
-        }
-    }
-
-    return result;
-}
-
-int loadGameData(Game *game, char *title, char *saveGame, char *trophyFile) {
-    FILE *coinData = fopen(trophyFile, "r");
-    if (!coinData) {
-        printf("Error loading coin data\n");
-        return 0;
-    }
-
-    strcpy(game->title, title);
-    game->trophies = loadTrophyData(coinData, &game->trophyCount);
-    fclose(coinData);
-
-    // Check if trophies are collected
+void loadGameData(Game *game, char *saveGame, void (*f)(Game*, FILE*)) {
     FILE *saveState = fopen(saveGame, "r");
     if (saveState == NULL) {
         printf("Save state not available");
-        return 0;
+        return;
     }
-    for (int i = 0; i < game->trophyCount; i++) {
-        game->trophies[i].isCollected = isTrophyCollected(saveState, game->trophies[i]);
-    }
+
+    (*f)(game, saveState);
+
     fclose(saveState);
-    return 1;
 }
 
 int main(void) {
@@ -322,15 +203,7 @@ int main(void) {
 
     int gameCount = 1;
     Game games[gameCount];
-
-    FILE *saveState = fopen("rom:/11080.ram", "r");
-    if (saveState == NULL) {
-        printf("Save state not available");
-        while(1) {}
-        return 0;
-    }
-    getGameData1080(&games[0], saveState);
-    fclose(saveState);
+    loadGameData(&games[0], "rom:/1080.ram", getGameData1080);
 //    loadGameData(&games[0], "1080 Snowboarding", "rom:/1080.ram", "rom:/1080.dat");
 //    loadGameData(&games[1], "Super Mario 64", "rom:/SuperMario64.eep", "rom:/MARIO64.dat");
 //    loadGameData(&games[2], "Super Mario 64 - 100%", "rom:/SuperMario64_100.eep", "rom:/MARIO64.dat");
@@ -349,8 +222,6 @@ int main(void) {
         } else if (state == TROPHY_OVERVIEW) {
             render_screen(disp, *selectedGame);
         }
-
-        //rdp_detach_display();
 
         /* Force backbuffer flip */
         display_show(disp);

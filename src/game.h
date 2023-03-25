@@ -9,7 +9,7 @@
 
 typedef struct {
     char title[50];
-    Trophy *trophies;
+    Trophy trophies[50];
     int trophyCount;
 } Game;
 

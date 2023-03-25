@@ -7,41 +7,59 @@
 #include <string.h>
 
 #include "../game.h"
+#include "../debug.c"
 
-void greaterThenOrEqual(
-        FILE *saveState,
-        Trophy *trophy,
+int trophyIndex = 0;
+
+int isGreaterOrEqual(FILE *saveState, int address, int requiredValue) {
+    unsigned short value = 0;
+    fseek(saveState, address, SEEK_SET);
+    fread(&value, 1, sizeof(value), saveState);
+    return value >= requiredValue;
+}
+
+void addTrophy(
+        Game *game,
         char *title,
         char *description,
         TrophyLevel level,
-        int address,
-        int requiredValue
+        TrophyType type,
+        int isCollected
 ) {
+    game->trophyCount = game->trophyCount + 1;
+    Trophy *trophy = &game->trophies[trophyIndex++];
     strcpy(trophy->title, title);
     strcpy(trophy->description, description);
     trophy->level = level;
-    trophy->type = BOOL;
+    trophy->type = type;
+    trophy->isCollected = isCollected;
+}
 
-    fseek(saveState, address, SEEK_SET);
-    unsigned short value = 0;
+int winterborn(FILE *saveState) {
+    unsigned int totalValue = 0;
+    unsigned char value = 0;
+    fseek(saveState, 0x6D, SEEK_SET);
     fread(&value, 1, sizeof(value), saveState);
-    printf("Value %d", value);//: %d", value);
-    while (1) {}
+    totalValue += (value * 600);
+    fread(&value, 1, sizeof(value), saveState);
+    totalValue += (value * 100);
+    fread(&value, 1, sizeof(value), saveState);
+    totalValue += value;
 
-    if (value >= requiredValue) {
-        trophy->isCollected = 1;
-    } else {
-        trophy->isCollected = 0;
-    }
+    return totalValue < 9000;
 }
 
 void getGameData1080(Game *game, FILE *saveState) {
-    strcpy(game->title, "1080 Snowboarding");
+    trophyIndex = 0;
 
-    game->trophyCount = 4;
-    game->trophies = (Trophy *) malloc(sizeof(Trophy) * game->trophyCount);
-    greaterThenOrEqual(saveState, &game->trophies[0], "Into the cold", "Finish easy difficulty", BONUS, 0x1FB, 2);
-    greaterThenOrEqual(saveState, &game->trophies[1], "Powder Threat", "Finish medium difficulty", BONUS, 0x1FB, 3);
-    greaterThenOrEqual(saveState, &game->trophies[2], "Stick with it", "Finish hard difficulty", BONUS, 0x1FB, 4);
-    greaterThenOrEqual(saveState, &game->trophies[3], "Wit's Thicket", "Finish expert difficulty", BONUS, 0x1FB, 5);
+    strcpy(game->title, "1080 Snowboarding");
+    addTrophy(game, "Into the cold", "Finish easy difficulty", BONUS, BOOL,
+              isGreaterOrEqual(saveState, 0x1FA, 2));
+    addTrophy(game, "Powder Threat", "Finish medium difficulty", BONUS, BOOL,
+              isGreaterOrEqual(saveState, 0x1FA, 3));
+    addTrophy(game, "Stick with it", "Finish hard difficulty", BONUS, BOOL,
+              isGreaterOrEqual(saveState, 0x1FA, 4));
+    addTrophy(game, "Wit's Thicket", "Finish expert difficulty", BONUS, BOOL,
+              isGreaterOrEqual(saveState, 0x1FA, 5));
+    addTrophy(game, "Winterborn", "Beat the highscore", BONUS, BOOL, winterborn(saveState));
 }
