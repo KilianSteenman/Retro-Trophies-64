@@ -9,6 +9,35 @@
 #include "../game.h"
 #include "../save_state_utils.h"
 
+typedef enum {
+    MARIO,
+    FOX,
+    DK,
+    SAMUS,
+    LUIGI,
+    LINK,
+    YOSHI,
+    CAPTAIN_FALCON,
+    KIRBY,
+    PIKACHU,
+    JIGGLYPUFF,
+    NESS
+} Character;
+
+char did_finish_break_the_targets(FILE *saveState, Character character) {
+    return is_equal(saveState, 0x470 + 0x20 * character, 10);
+}
+
+char get_targets_completed_count(FILE *saveState) {
+    char completed_count = 0;
+    for (int i = MARIO; i <= NESS; i++) {
+        if (did_finish_break_the_targets(saveState, i)) {
+            completed_count++;
+        }
+    }
+    return completed_count;
+}
+
 void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
     strcpy(game->title, "Super Smash Bros");
     add_bool_trophy(game, "It's a me", "Unlock Luigi", SILVER,
@@ -19,4 +48,6 @@ void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
                     is_flag_set(saveState, 0x457, 0b10));
     add_bool_trophy(game, "Sweet dreams", "Unlock Jigglypuff", SILVER,
                     is_flag_set(saveState, 0x457, 0b1000));
+    add_counter_trophy(game, "Target smasher", "Complete 'Break the Targets!' with all characters", GOLD,
+                       12, get_targets_completed_count(saveState));
 }

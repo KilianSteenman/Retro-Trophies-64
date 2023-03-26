@@ -7,6 +7,8 @@
 
 #include <stdio.h>
 
+int is_equal(FILE *saveState, int address, int requiredValue);
+
 int is_greater_or_equal(FILE *saveState, int address, int requiredValue);
 
 int is_flag_set(FILE *saveState, int address, char flag);
