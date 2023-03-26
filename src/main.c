@@ -6,6 +6,8 @@
 #include "game.h"
 #include "trophy.h"
 #include "./games/1080.c"
+#include "./games/mario64.c"
+#include "./games/super_smash_bros.c"
 
 typedef enum {
     GAME_SELECT,
@@ -201,9 +203,12 @@ int main(void) {
     dfs_read(testSprite, 1, dfs_size(fp), fp);
     dfs_close(fp);
 
-    int gameCount = 1;
+    int gameCount = 4;
     Game games[gameCount];
     loadGameData(&games[0], "rom:/1080.ram", get_game_data_1080);
+    loadGameData(&games[1], "rom:/SuperMario64.eep", get_game_data_mario64);
+    loadGameData(&games[2], "rom:/SuperMario64_100.eep", get_game_data_mario64);
+    loadGameData(&games[3], "rom:/ssb_cf_unlocked.ram", get_game_data_super_smash_bros);
 //    loadGameData(&games[0], "1080 Snowboarding", "rom:/1080.ram", "rom:/1080.dat");
 //    loadGameData(&games[1], "Super Mario 64", "rom:/SuperMario64.eep", "rom:/MARIO64.dat");
 //    loadGameData(&games[2], "Super Mario 64 - 100%", "rom:/SuperMario64_100.eep", "rom:/MARIO64.dat");

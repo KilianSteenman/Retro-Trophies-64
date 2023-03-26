@@ -2,14 +2,14 @@
 // Created by Shadow-Link on 25/03/2023.
 //
 
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "../game.h"
-#include "../debug.c"
+#include "../debug.h"
+#include "../test.h"
 
-int is_greater_or_equal(FILE *saveState, int address, int requiredValue) {
+int is_greater_or_equal_1080(FILE *saveState, int address, int requiredValue) {
     unsigned short value = 0;
     fseek(saveState, address, SEEK_SET);
     fread(&value, 1, sizeof(value), saveState);
@@ -29,19 +29,19 @@ int get_time_millis(FILE *saveState, int address) {
     return totalValue;
 }
 
-int trophy_winterborn(FILE *saveState) {
+int is_trophy_collected_winterborn(FILE *saveState) {
     return get_time_millis(saveState, 0x6D) < 9000; // 1:30:00
 }
 
 void get_game_data_1080(Game *game, FILE *saveState) {
     strcpy(game->title, "1080 Snowboarding");
     add_trophy(game, "Into the cold", "Finish easy difficulty", BRONZE, BOOL,
-               is_greater_or_equal(saveState, 0x1FA, 2));
+               is_greater_or_equal_1080(saveState, 0x1FA, 2));
     add_trophy(game, "Powder Threat", "Finish medium difficulty", SILVER, BOOL,
-               is_greater_or_equal(saveState, 0x1FA, 3));
+               is_greater_or_equal_1080(saveState, 0x1FA, 3));
     add_trophy(game, "Stick with it", "Finish hard difficulty", SILVER, BOOL,
-               is_greater_or_equal(saveState, 0x1FA, 4));
+               is_greater_or_equal_1080(saveState, 0x1FA, 4));
     add_trophy(game, "Wit's Thicket", "Finish expert difficulty", GOLD, BOOL,
-               is_greater_or_equal(saveState, 0x1FA, 5));
-    add_trophy(game, "Winterborn", "Beat the highscore", BRONZE, BOOL, trophy_winterborn(saveState));
+               is_greater_or_equal_1080(saveState, 0x1FA, 5));
+    add_trophy(game, "Winterborn", "Beat the highscore", BRONZE, BOOL, is_trophy_collected_winterborn(saveState));
 }
