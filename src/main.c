@@ -6,6 +6,7 @@
 #include "game.h"
 #include "trophy.h"
 #include "debug.h"
+#include "graphics_ext.h"
 #include "games/1080_snowboarding.h"
 #include "games/super_mario_64.h"
 #include "games/super_smash_bros.h"
@@ -50,18 +51,6 @@ get_trophy_totals(Game *games, int gameCount, int *bronzeCount, int *silverCount
             }
         }
     }
-}
-
-void graphics_draw_number(display_context_t disp, int x, int y, int number) {
-    char buffer[11];
-    sprintf(buffer, "%d", number);
-    graphics_draw_text(disp, x, y, buffer);
-}
-
-void graphics_draw_progressbar(display_context_t disp, int x, int y, int width, int height, uint32_t bgColor,
-                               uint32_t fillColor, int percentageCompleted) {
-    graphics_draw_box(disp, x, y, width, height, bgColor);
-    graphics_draw_box(disp, x, y, width * ((float) percentageCompleted / 100.0f), height, fillColor);
 }
 
 void draw_game_tile(display_context_t disp, int x, int y, Game game) {
