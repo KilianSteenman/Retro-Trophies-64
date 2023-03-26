@@ -9,7 +9,7 @@
 #include "../save_state_utils.h"
 #include "../game.h"
 
-int are_all_coin_stars_collected(FILE *saveState) {
+int get_coin_star_count(FILE *saveState) {
     // There are 15 coin counts starting at offset 0x25
     fseek(saveState, 0x25, SEEK_SET);
     int coinStarsCollected = 0;
@@ -31,5 +31,5 @@ void get_game_data_mario64(Game *game, FILE *saveState) {
     add_bool_trophy(game, "Bob-omb boom!", "Collect all stars on Bob-omb battlefield", SILVER,
                     is_greater_or_equal(saveState, 0xC, 0b11111110));
     add_counter_trophy(game, "It's all about the money", "Collect all coin stars", SILVER,
-                       15, are_all_coin_stars_collected(saveState));
+                       15, get_coin_star_count(saveState));
 }
