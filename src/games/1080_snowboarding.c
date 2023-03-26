@@ -21,8 +21,29 @@ int get_time_millis(FILE *saveState, int address) {
     return totalValue;
 }
 
-int is_trophy_collected_winterborn(FILE *saveState) {
-    return get_time_millis(saveState, 0x6D) < 9000; // 1:30:00
+char is_record_broken(FILE *saveState, int address, int record_time) {
+    return get_time_millis(saveState, address) < record_time;
+}
+
+
+int is_any_record_broken(FILE *saveState) {
+    // Checks if any of the records is broken (TODO: Might just check the isBot/Set flag?)
+    return is_record_broken(saveState, 0x6D, 9000 /* 1:30:00 */) ||
+           is_record_broken(saveState, 0x9D, 9000 /* 1:30:00 */) ||
+           is_record_broken(saveState, 0xCD, 9000 /* 1:30:00 */) ||
+           is_record_broken(saveState, 0xFD, 9000 /* 1:30:00 */) ||
+           is_record_broken(saveState, 0x12D, 9000 /* 1:30:00 */) ||
+           is_record_broken(saveState, 0x15D, 9000 /* 1:30:00 */);
+}
+
+int are_all_records_broken(FILE *saveState) {
+    // Checks if any of the records is broken (TODO: Might just check the isBot/Set flag?)
+    return is_record_broken(saveState, 0x6D, 9000 /* 1:30:00 */) &&
+           is_record_broken(saveState, 0x9D, 9000 /* 1:30:00 */) &&
+           is_record_broken(saveState, 0xCD, 9000 /* 1:30:00 */) &&
+           is_record_broken(saveState, 0xFD, 9000 /* 1:30:00 */) &&
+           is_record_broken(saveState, 0x12D, 9000 /* 1:30:00 */) &&
+           is_record_broken(saveState, 0x15D, 9000 /* 1:30:00 */);
 }
 
 void get_game_data_1080(Game *game, FILE *saveState) {
@@ -35,5 +56,6 @@ void get_game_data_1080(Game *game, FILE *saveState) {
                     is_greater_or_equal(saveState, 0x1FA, 4));
     add_bool_trophy(game, "Wit's Thicket", "Finish expert difficulty", GOLD,
                     is_greater_or_equal(saveState, 0x1FA, 5));
-    add_bool_trophy(game, "Winterborn", "Beat the highscore", BRONZE, is_trophy_collected_winterborn(saveState));
+    add_bool_trophy(game, "Winterborn", "Beat a highscore", BRONZE, is_any_record_broken(saveState));
+    add_bool_trophy(game, "Conquest", "Beat all highscores", SILVER, are_all_records_broken(saveState));
 }
