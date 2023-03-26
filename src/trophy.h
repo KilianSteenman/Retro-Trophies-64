@@ -5,33 +5,31 @@
 #ifndef N64_ACHIEVEMENT_COINS_TROPHY_H
 #define N64_ACHIEVEMENT_COINS_TROPHY_H
 
-typedef struct Requirement {
+#include <stdio.h>
+
+typedef struct {
     int address;
     int value;
 } Requirement;
 
-typedef enum TrophyLevel {
-    BONUS,
-    MILESTONE,
-    FINISHED,
-    COMPLETED
+typedef enum {
+    BRONZE,
+    SILVER,
+    GOLD,
+    PLATINUM
 } TrophyLevel;
 
-typedef enum RequirementType {
-    COUNT,
-    OR
-} RequirementType;
+typedef enum {
+    COUNTER,
+    BOOL
+} TrophyType;
 
-typedef struct Trophy {
+typedef struct {
     TrophyLevel level;
-    RequirementType type;
+    TrophyType type;
     char title[50];
     char description[120];
-    int requirementCount;
-    Requirement *requirements;
-    int isCollected;
+    char isCollected;
 } Trophy;
-
-int isTrophyCollected(FILE *saveState, Trophy trophy);
 
 #endif //N64_ACHIEVEMENT_COINS_TROPHY_H

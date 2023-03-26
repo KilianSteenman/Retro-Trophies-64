@@ -5,18 +5,20 @@
 
 #include "game.h"
 #include "trophy.h"
+#include "debug.h"
+#include "games/1080_snowboarding.h"
+#include "games/super_mario_64.h"
+#include "games/super_smash_bros.h"
 
 typedef enum {
     GAME_SELECT,
     TROPHY_OVERVIEW
 } State;
 
-sprite_t *testSprite;
-
-static State state = GAME_SELECT;
-static Game *selectedGame;
-static int selectedGameIndex = 0;
-static int selectedTrophy = 0;
+State state = GAME_SELECT;
+Game *selectedGame;
+int selectedGameIndex = 0;
+int selectedTrophy = 0;
 
 void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
     graphics_draw_text(disp, x, y, trophy.title);
@@ -33,16 +35,16 @@ get_trophy_totals(Game *games, int gameCount, int *bronzeCount, int *silverCount
             }
 
             switch (game.trophies[i].level) {
-                case BONUS:
+                case BRONZE:
                     *bronzeCount = *bronzeCount + 1;
                     break;
-                case MILESTONE:
+                case SILVER:
                     *silverCount = *silverCount + 1;
                     break;
-                case FINISHED:
+                case GOLD:
                     *goldCount = *goldCount + 1;
                     break;
-                case COMPLETED:
+                case PLATINUM:
                     *completedCount = *completedCount + 1;
                     break;
             }
@@ -56,9 +58,10 @@ void graphics_draw_number(display_context_t disp, int x, int y, int number) {
     graphics_draw_text(disp, x, y, buffer);
 }
 
-void graphics_draw_progressbar(display_context_t disp, int x, int y, int width, int height, uint32_t bgColor, uint32_t fillColor, int percentageCompleted) {
+void graphics_draw_progressbar(display_context_t disp, int x, int y, int width, int height, uint32_t bgColor,
+                               uint32_t fillColor, int percentageCompleted) {
     graphics_draw_box(disp, x, y, width, height, bgColor);
-    graphics_draw_box(disp, x, y, width * ((float)percentageCompleted / 100.0f), height, fillColor);
+    graphics_draw_box(disp, x, y, width * ((float) percentageCompleted / 100.0f), height, fillColor);
 }
 
 void draw_game_tile(display_context_t disp, int x, int y, Game game) {
@@ -75,7 +78,8 @@ void draw_game_tile(display_context_t disp, int x, int y, Game game) {
     char percentageBuffer[12];
     sprintf(percentageBuffer, "%d%%", percentageCompleted);
     graphics_draw_text(disp, x + 450, y + 5, percentageBuffer);
-    graphics_draw_progressbar(disp, x + 450, y + 15, 30, 3, graphics_make_color(255, 255, 255, 255), graphics_make_color(255, 0, 0, 255), percentageCompleted);
+    graphics_draw_progressbar(disp, x + 450, y + 15, 30, 3, graphics_make_color(255, 255, 255, 255),
+                              graphics_make_color(255, 0, 0, 255), percentageCompleted);
 
     // Trophy counts
     graphics_draw_number(disp, x + 500, y + 5, bronzeCount);
@@ -90,14 +94,14 @@ void on_game_selected(Game *game) {
 }
 
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
+    // draw totals
     int bronzeCount = 0, silverCount = 0, goldCount = 0, completedCount = 0;
     get_trophy_totals(games, gameCount, &bronzeCount, &silverCount, &goldCount, &completedCount);
+    graphics_set_color(0xFF0000FF, 0x0);
     graphics_draw_number(disp, 10, 10, bronzeCount);
     graphics_draw_number(disp, 50, 10, silverCount);
     graphics_draw_number(disp, 90, 10, goldCount);
     graphics_draw_number(disp, 130, 10, completedCount);
-
-    graphics_draw_sprite(disp, 10, 10, testSprite);
 
     for (int i = 0; i < gameCount; i++) {
 
@@ -170,119 +174,16 @@ void render_screen(display_context_t disp, Game game) {
     }
 }
 
-Trophy *loadTrophyData(FILE *trophyFile, int *trophyCount) {
-    char line[150];
-
-    // Read trophy count
-    if (fgets(line, 150, trophyFile) != NULL) {
-        sscanf(line, "TROPHY_COUNT %d", trophyCount);
-    }
-    printf("Trophy Count: %d\n", *trophyCount);
-
-    char level[10];
-    char title[50];
-    char description[120];
-    char type[10];
-    int count;
-
-    // Load trophy data
-    Trophy *trophies = (Trophy *) malloc(sizeof(Trophy) * *trophyCount);
-    for (int i = 0; i < *trophyCount; i++) {
-        // Read a trophy
-        if (fgets(line, 150, trophyFile) != NULL) {
-
-            // Sample: STAR;Stargazer;COUNT;120
-            char delim[] = ";";
-            char *ptr = strtok(line, delim);
-
-            strcpy(level, ptr);
-            ptr = strtok(NULL, delim);
-            strcpy(title, ptr);
-            ptr = strtok(NULL, delim);
-            strcpy(description, ptr);
-            ptr = strtok(NULL, delim);
-            strcpy(type, ptr);
-            ptr = strtok(NULL, delim);
-            count = (int) strtol(ptr, NULL, 10);
-
-            // Parse type info
-            if (strcmp(type, "COUNT") == 0) {
-                trophies[i].type = COUNT;
-            } else if (strcmp(type, "OR") == 0) {
-                trophies[i].type = OR;
-            }
-
-            strcpy(trophies[i].title, title);
-            strcpy(trophies[i].description, description);
-            trophies[i].requirements = (Requirement *) malloc(sizeof(Requirement) * count);
-            trophies[i].requirementCount = count;
-            for (int c = 0; c < count; c++) {
-                if (fgets(line, 150, trophyFile) != NULL) {
-                    char address[10];
-                    char value[10];
-
-                    sscanf(line, "%s %s", address, value);
-                    int addressValue = (int) strtol(address, NULL, 16);
-                    int valueValue = (int) strtol(value, NULL, 2);
-
-                    Requirement requirement = {.address = addressValue, .value = valueValue};
-                    trophies[i].requirements[c] = requirement;
-                }
-            }
-        }
-    }
-
-    return trophies;
-}
-
-int isTrophyCollected(FILE *saveState, Trophy trophy) {
-    int result = 1;
-    if (trophy.type == OR) {
-        result = 0;
-    } else {
-        result = 1;
-    }
-
-    for (int i = 0; i < trophy.requirementCount; i++) {
-        Requirement requirement = trophy.requirements[i];
-
-        fseek(saveState, requirement.address, SEEK_SET);
-
-        char buffer[1];
-        fread(buffer, 1, sizeof(buffer), saveState);
-        int bit = (buffer[0] & requirement.value) == requirement.value;
-        if (trophy.type == OR) {
-            result = result | bit;
-        } else if (trophy.type == COUNT) {
-            result = result & bit;
-        }
-    }
-
-    return result;
-}
-
-int loadGameData(Game *game, char *title, char *saveGame, char *trophyFile) {
-    FILE *coinData = fopen(trophyFile, "r");
-    if (!coinData) {
-        printf("Error loading coin data\n");
-        return 0;
-    }
-
-    strcpy(game->title, title);
-    game->trophies = loadTrophyData(coinData, &game->trophyCount);
-    fclose(coinData);
-
-    // Check if trophies are collected
+void loadGameData(Game *game, char *saveGame, void (*f)(Game *, FILE *)) {
     FILE *saveState = fopen(saveGame, "r");
     if (saveState == NULL) {
-        printf("Save state not available");
-        return 0;
+        debug_print_and_stop("Save data unavailable");
+        return;
     }
-    for (int i = 0; i < game->trophyCount; i++) {
-        game->trophies[i].isCollected = isTrophyCollected(saveState, game->trophies[i]);
-    }
+
+    (*f)(game, saveState);
+
     fclose(saveState);
-    return 1;
 }
 
 int main(void) {
@@ -295,16 +196,11 @@ int main(void) {
     debug_init_usblog();
     console_set_debug(true);
 
-    // Test sprite rendering
-    int fp = dfs_open("/earthbound.sprite");
-    testSprite = malloc(dfs_size(fp));
-    dfs_read(testSprite, 1, dfs_size(fp), fp);
-    dfs_close(fp);
-
-    Game games[3];
-    loadGameData(&games[0], "Super Mario 64", "rom:/SuperMario64.eep", "rom:/MARIO64.dat");
-    loadGameData(&games[1], "Super Mario 64 - 100%", "rom:/SuperMario64_100.eep", "rom:/MARIO64.dat");
-    loadGameData(&games[2], "Super Smash bros", "rom:/ssb_cf_unlocked.ram", "rom:/SSB.dat");
+    Game games[4];
+    loadGameData(&games[0], "rom:/1080.ram", get_game_data_1080);
+    loadGameData(&games[1], "rom:/SuperMario64.eep", get_game_data_mario64);
+    loadGameData(&games[2], "rom:/SuperMario64_100.eep", get_game_data_mario64);
+    loadGameData(&games[3], "rom:/ssb_cf_unlocked.ram", get_game_data_super_smash_bros);
 
     while (1) {
         /* Grab a render buffer */
@@ -315,12 +211,10 @@ int main(void) {
 
         /* Render the screen */
         if (state == GAME_SELECT) {
-            render_game_select_screen(disp, games, 3);
+            render_game_select_screen(disp, games, 4);
         } else if (state == TROPHY_OVERVIEW) {
             render_screen(disp, *selectedGame);
         }
-
-        //rdp_detach_display();
 
         /* Force backbuffer flip */
         display_show(disp);
