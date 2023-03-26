@@ -2,6 +2,7 @@
 // Created by Shadow-Link on 25/03/2023.
 //
 
+#include <libdragon.h>
 #include <stdio.h>
 
 void debug_print_number_and_stop(char *message, int value) {

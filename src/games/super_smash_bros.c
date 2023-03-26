@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "trophy.h"
-#include "game.h"
+#include "../trophy.h"
+#include "../game.h"
 
 int is_flag_set(FILE *saveState, int address, char flag) {
     unsigned char value = 0;

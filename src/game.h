@@ -5,6 +5,8 @@
 #ifndef N64_ACHIEVEMENT_COINS_GAME_H
 #define N64_ACHIEVEMENT_COINS_GAME_H
 
+#include <string.h>
+
 #include "trophy.h"
 
 #define MAX_TROPHY_COUNT 50

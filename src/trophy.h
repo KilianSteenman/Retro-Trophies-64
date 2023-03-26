@@ -5,6 +5,8 @@
 #ifndef N64_ACHIEVEMENT_COINS_TROPHY_H
 #define N64_ACHIEVEMENT_COINS_TROPHY_H
 
+#include <stdio.h>
+
 typedef struct {
     int address;
     int value;
@@ -27,9 +29,7 @@ typedef struct {
     TrophyType type;
     char title[50];
     char description[120];
-    int isCollected;
+    char isCollected;
 } Trophy;
-
-int isTrophyCollected(FILE *saveState, Trophy trophy);
 
 #endif //N64_ACHIEVEMENT_COINS_TROPHY_H

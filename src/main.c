@@ -6,16 +6,14 @@
 #include "game.h"
 #include "trophy.h"
 #include "debug.h"
-#include "game_1080.c"
-#include "game_mario64.c"
-#include "game_super_smash_bros.c"
+#include "games/1080_snowboarding.h"
+#include "games/super_mario_64.h"
+#include "games/super_smash_bros.h"
 
 typedef enum {
     GAME_SELECT,
     TROPHY_OVERVIEW
 } State;
-
-sprite_t *testSprite;
 
 State state = GAME_SELECT;
 Game *selectedGame;
@@ -176,10 +174,10 @@ void render_screen(display_context_t disp, Game game) {
     }
 }
 
-void loadGameData(Game *game, char *saveGame, void (*f)(Game*, FILE*)) {
+void loadGameData(Game *game, char *saveGame, void (*f)(Game *, FILE *)) {
     FILE *saveState = fopen(saveGame, "r");
     if (saveState == NULL) {
-        printf("Save state not available");
+        debug_print_and_stop("Save data unavailable");
         return;
     }
 
@@ -198,14 +196,7 @@ int main(void) {
     debug_init_usblog();
     console_set_debug(true);
 
-    // Test sprite rendering
-    int fp = dfs_open("/earthbound.sprite");
-    testSprite = malloc(dfs_size(fp));
-    dfs_read(testSprite, 1, dfs_size(fp), fp);
-    dfs_close(fp);
-
-    int gameCount = 4;
-    Game games[gameCount];
+    Game games[4];
     loadGameData(&games[0], "rom:/1080.ram", get_game_data_1080);
     loadGameData(&games[1], "rom:/SuperMario64.eep", get_game_data_mario64);
     loadGameData(&games[2], "rom:/SuperMario64_100.eep", get_game_data_mario64);
@@ -220,7 +211,7 @@ int main(void) {
 
         /* Render the screen */
         if (state == GAME_SELECT) {
-            render_game_select_screen(disp, games, gameCount);
+            render_game_select_screen(disp, games, 4);
         } else if (state == TROPHY_OVERVIEW) {
             render_screen(disp, *selectedGame);
         }

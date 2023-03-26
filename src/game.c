@@ -14,8 +14,9 @@ void add_trophy(
         TrophyType type,
         int isCollected
 ) {
-    if(game->trophyCount >= MAX_TROPHY_COUNT) {
-        debug_print_and_stop("Unable to add trophy: reached max trophy count");
+    printf("Trophy count %d\n", game->trophyCount);
+    if (game->trophyCount >= MAX_TROPHY_COUNT) {
+        debug_print_number_and_stop("Unable to add trophy: reached max trophy count", game->trophyCount);
         return;
     }
 
@@ -49,7 +50,5 @@ void getGameStatus(Game game, int *bronzeCount, int *silverCount, int *goldCount
         }
     }
 
-    *percentageCompleted = ((float)completedCount / game.trophyCount * 100.0f);
+    *percentageCompleted = ((float) completedCount / game.trophyCount * 100.0f);
 }
-
-#endif //N64_ACHIEVEMENT_COINS_GAME_H
