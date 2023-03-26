@@ -27,13 +27,13 @@ int is_trophy_collected_winterborn(FILE *saveState) {
 
 void get_game_data_1080(Game *game, FILE *saveState) {
     strcpy(game->title, "1080 Snowboarding");
-    add_trophy(game, "Into the cold", "Finish easy difficulty", BRONZE, BOOL,
-               is_greater_or_equal(saveState, 0x1FA, 2));
-    add_trophy(game, "Powder Threat", "Finish medium difficulty", SILVER, BOOL,
-               is_greater_or_equal(saveState, 0x1FA, 3));
-    add_trophy(game, "Stick with it", "Finish hard difficulty", SILVER, BOOL,
-               is_greater_or_equal(saveState, 0x1FA, 4));
-    add_trophy(game, "Wit's Thicket", "Finish expert difficulty", GOLD, BOOL,
-               is_greater_or_equal(saveState, 0x1FA, 5));
-    add_trophy(game, "Winterborn", "Beat the highscore", BRONZE, BOOL, is_trophy_collected_winterborn(saveState));
+    add_bool_trophy(game, "Into the cold", "Finish easy difficulty", BRONZE,
+                    is_greater_or_equal(saveState, 0x1FA, 2));
+    add_bool_trophy(game, "Powder Threat", "Finish medium difficulty", SILVER,
+                    is_greater_or_equal(saveState, 0x1FA, 3));
+    add_bool_trophy(game, "Stick with it", "Finish hard difficulty", SILVER,
+                    is_greater_or_equal(saveState, 0x1FA, 4));
+    add_bool_trophy(game, "Wit's Thicket", "Finish expert difficulty", GOLD,
+                    is_greater_or_equal(saveState, 0x1FA, 5));
+    add_bool_trophy(game, "Winterborn", "Beat the highscore", BRONZE, is_trophy_collected_winterborn(saveState));
 }

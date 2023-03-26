@@ -17,13 +17,21 @@ typedef struct {
     int trophyCount;
 } Game;
 
-void add_trophy(
+void add_bool_trophy(
         Game *game,
         char *title,
         char *description,
         TrophyLevel level,
-        TrophyType type,
         int isCollected
+);
+
+void add_counter_trophy(
+        Game *game,
+        char *title,
+        char *description,
+        TrophyLevel level,
+        int targetCount,
+        int currentCount
 );
 
 void getGameStatus(Game game, int *bronzeCount, int *silverCount, int *goldCount, int *percentageCompleted);

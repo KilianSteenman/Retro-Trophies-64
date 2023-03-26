@@ -29,6 +29,8 @@ typedef struct {
     TrophyType type;
     char title[50];
     char description[120];
+    int targetCount;
+    int currentCount;
     char isCollected;
 } Trophy;
 

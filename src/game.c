@@ -6,12 +6,11 @@
 #include "trophy.h"
 #include "debug.h"
 
-void add_trophy(
+void add_bool_trophy(
         Game *game,
         char *title,
         char *description,
         TrophyLevel level,
-        TrophyType type,
         int isCollected
 ) {
     printf("Trophy count %d\n", game->trophyCount);
@@ -24,8 +23,32 @@ void add_trophy(
     strcpy(trophy->title, title);
     strcpy(trophy->description, description);
     trophy->level = level;
-    trophy->type = type;
+    trophy->type = BOOL;
     trophy->isCollected = isCollected;
+}
+
+void add_counter_trophy(
+        Game *game,
+        char *title,
+        char *description,
+        TrophyLevel level,
+        int targetCount,
+        int currentCount
+) {
+    printf("Trophy count %d\n", game->trophyCount);
+    if (game->trophyCount >= MAX_TROPHY_COUNT) {
+        debug_print_number_and_stop("Unable to add trophy: reached max trophy count", game->trophyCount);
+        return;
+    }
+
+    Trophy *trophy = &game->trophies[game->trophyCount++];
+    strcpy(trophy->title, title);
+    strcpy(trophy->description, description);
+    trophy->level = level;
+    trophy->type = COUNTER;
+    trophy->targetCount = targetCount;
+    trophy->currentCount = currentCount;
+    trophy->isCollected = currentCount == targetCount;
 }
 
 void getGameStatus(Game game, int *bronzeCount, int *silverCount, int *goldCount, int *percentageCompleted) {

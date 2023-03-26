@@ -24,6 +24,16 @@ int selectedTrophy = 0;
 void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
     graphics_draw_text(disp, x, y, trophy.title);
     graphics_draw_text(disp, x, y + 10, trophy.description);
+
+    if (trophy.type == COUNTER) {
+        char buffer[100];
+        sprintf(buffer, "%d / %d", trophy.currentCount, trophy.targetCount);
+
+        int percentageCompleted = ((float) trophy.currentCount / trophy.targetCount * 100.0f);
+        graphics_draw_text(disp, x + 400, y, buffer);
+        graphics_draw_progressbar(disp, x + 400, y + 10, 100, 10, graphics_make_color(255, 255, 255, 255),
+                                  graphics_make_color(255, 0, 0, 255), percentageCompleted);
+    }
 }
 
 void
