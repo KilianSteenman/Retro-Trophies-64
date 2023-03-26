@@ -7,7 +7,6 @@
 
 #include "../game.h"
 #include "../debug.h"
-#include "../test.h"
 
 int is_flag_set(FILE *saveState, int address, char flag) {
     unsigned char value = 0;

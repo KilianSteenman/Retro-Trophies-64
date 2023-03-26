@@ -209,10 +209,6 @@ int main(void) {
     loadGameData(&games[1], "rom:/SuperMario64.eep", get_game_data_mario64);
     loadGameData(&games[2], "rom:/SuperMario64_100.eep", get_game_data_mario64);
     loadGameData(&games[3], "rom:/ssb_cf_unlocked.ram", get_game_data_super_smash_bros);
-//    loadGameData(&games[0], "1080 Snowboarding", "rom:/1080.ram", "rom:/1080.dat");
-//    loadGameData(&games[1], "Super Mario 64", "rom:/SuperMario64.eep", "rom:/MARIO64.dat");
-//    loadGameData(&games[2], "Super Mario 64 - 100%", "rom:/SuperMario64_100.eep", "rom:/MARIO64.dat");
-//    loadGameData(&games[3], "Super Smash bros", "rom:/ssb_cf_unlocked.ram", "rom:/SSB.dat");
 
     while (1) {
         /* Grab a render buffer */

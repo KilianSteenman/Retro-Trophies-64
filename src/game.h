@@ -3,13 +3,16 @@
 //
 
 #include "trophy.h"
+#include "debug.h"
 
 #ifndef N64_ACHIEVEMENT_COINS_GAME_H
 #define N64_ACHIEVEMENT_COINS_GAME_H
 
+#define MAX_TROPHY_COUNT 50
+
 typedef struct {
     char title[50];
-    Trophy trophies[50];
+    Trophy trophies[MAX_TROPHY_COUNT];
     int trophyCount;
 } Game;
 
@@ -21,6 +24,11 @@ void add_trophy(
         TrophyType type,
         int isCollected
 ) {
+    if(game->trophyCount >= MAX_TROPHY_COUNT) {
+        debug_print_and_stop("Unable to add trophy: reached max trophy count");
+        return;
+    }
+
     Trophy *trophy = &game->trophies[game->trophyCount++];
     strcpy(trophy->title, title);
     strcpy(trophy->description, description);
