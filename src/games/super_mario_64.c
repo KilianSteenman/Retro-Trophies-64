@@ -10,10 +10,11 @@
 #include "../game.h"
 
 int are_all_coin_stars_collected(FILE *saveState) {
+    // There are 15 coin counts starting at offset 0x25
     fseek(saveState, 0x25, SEEK_SET);
     int coinStarsCollected = 0;
     char coinCount;
-    for (int i = 0x25; i <= 0x33; i++) {
+    for (int i = 0; i < 15; i++) {
         fread(&coinCount, 1, sizeof(coinCount), saveState);
         if (coinCount >= 100) {
             coinStarsCollected++;

@@ -7,13 +7,7 @@
 
 #include "../trophy.h"
 #include "../game.h"
-
-int is_flag_set(FILE *saveState, int address, char flag) {
-    unsigned char value = 0;
-    fseek(saveState, address, SEEK_SET);
-    fread(&value, 1, sizeof(value), saveState);
-    return (value && flag) == flag;
-}
+#include "../save_state_utils.h"
 
 void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
     strcpy(game->title, "Super Smash Bros");
