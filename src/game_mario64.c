@@ -5,8 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../game.h"
-#include "../debug.h"
+#include "game.h"
 
 int is_greater_or_equal_mario64(FILE *saveState, int address, int requiredValue) {
     unsigned short value = 0;

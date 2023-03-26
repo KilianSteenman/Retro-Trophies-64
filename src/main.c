@@ -5,9 +5,10 @@
 
 #include "game.h"
 #include "trophy.h"
-#include "./games/1080.c"
-#include "./games/mario64.c"
-#include "./games/super_smash_bros.c"
+#include "debug.h"
+#include "game_1080.c"
+#include "game_mario64.c"
+#include "game_super_smash_bros.c"
 
 typedef enum {
     GAME_SELECT,
