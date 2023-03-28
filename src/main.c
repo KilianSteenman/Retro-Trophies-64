@@ -185,6 +185,74 @@ void loadGameData(Game *game, char *saveGame, void (*f)(Game *, FILE *)) {
     fclose(saveState);
 }
 
+typedef struct {
+    char game_path[257];
+} GamePath;
+
+void detect_rom(char *game_path, char *game_id) {
+    // Checks the 'unique' identifier for this rom
+    FILE *game_rom = fopen(game_path, "r");
+    if (game_rom == NULL) {
+        debug_print_and_stop("Unable to open game rom");
+        return;
+    }
+    fseek(game_rom, 59, SEEK_SET);
+    char buffer[4];
+    fread(buffer, sizeof(buffer), 1, game_rom);
+    fclose(game_rom);
+    strcpy(game_id, buffer);
+}
+
+void print_dir(char *dir) {
+    int path_count = 0;
+    GamePath paths[5];
+
+    dir_t buf;
+    int ret = dir_findfirst(dir, &buf);
+    while (ret == 0) {
+        if (buf.d_type == 2) {
+            printf("Dir %s %d\n", buf.d_name, buf.d_type);
+            char next_dir[512];
+            sprintf(next_dir, "%s%s/", dir, buf.d_name);
+            printf("next: %s\n", next_dir);
+//            print_dir(next_dir);
+        } else {
+            printf("File %s %d\n", buf.d_name, buf.d_type);
+
+            // Check if this is an N64 rom
+            char *dot = strrchr(buf.d_name, '.');
+            if (dot && !strcmp(dot, ".z64")) {
+                sprintf(paths[path_count++].game_path, "%s%s", dir, buf.d_name);
+            }
+        }
+        ret = dir_findnext(dir, &buf);
+    }
+
+    char *game_id_hello = "TEST";
+    for (int i = 0; i < path_count; i++) {
+        // Checks the 'unique' identifier for this rom
+        FILE *game_rom = fopen(paths[i].game_path, "r");
+        if (game_rom == NULL) {
+            debug_print_and_stop("Unable to open game rom");
+            return;
+        }
+        fseek(game_rom, 59, SEEK_SET);
+        fread(game_id_hello, 4, 1, game_rom);
+        fclose(game_rom);
+        printf("Detected game '%s' at %s \n", game_id_hello, paths[i].game_path);
+    }
+}
+
+void detect_games() {
+//    if (!debug_init_sdfs("sd:/", -1)) {
+    if (dfs_init(DFS_DEFAULT_LOCATION) != DFS_ESUCCESS) {
+        debug_print_and_stop("Error opening SD");
+    }
+
+    print_dir("rom://");
+    debug_print_and_stop("done");
+}
+
 int main(void) {
     display_init(RESOLUTION_320x240, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
     dfs_init(DFS_DEFAULT_LOCATION);
@@ -194,6 +262,8 @@ int main(void) {
 
     debug_init_usblog();
     console_set_debug(true);
+
+    detect_games();
 
     Game games[4];
     loadGameData(&games[0], "rom:/1080.ram", get_game_data_1080);
