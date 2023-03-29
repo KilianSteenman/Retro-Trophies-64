@@ -203,33 +203,61 @@ void detect_rom(char *game_path, char *game_id) {
     strcpy(game_id, buffer);
 }
 
+typedef enum {
+    RAM,
+    EEP
+} SaveType;
+
+typedef void (*TrophyDataLoader)(Game *, FILE *);
+
+typedef struct {
+    char name[50];
+    char game_code[4];
+    SaveType save_type;
+    TrophyDataLoader trophy_data_loader;
+} SupportedGame;
+
+#define N64_HARDWARE
+
 void print_dir(char *dir) {
+    SupportedGame supported_games[3];
+    supported_games[0] = (SupportedGame) {.name = "1080 Snowboarding", .game_code = "NTEA", .save_type = RAM, .trophy_data_loader = get_game_data_1080};
+    supported_games[1] = (SupportedGame) {.name = "Wave Race 64", .game_code = "NWRE", .save_type = RAM, .trophy_data_loader = get_game_data_mario64};
+    supported_games[2] = (SupportedGame) {.name = "Super Mario 64", .game_code = "NSME", .save_type = RAM, .trophy_data_loader = get_game_data_mario64};
+    for (int i = 0; i < 3; i++) {
+        printf("Supported game %s\n", supported_games[i].game_code);
+    }
+
     int path_count = 0;
-    GamePath paths[5];
+    GamePath paths[10];
+    int counter = 0;
 
     dir_t buf;
     int ret = dir_findfirst(dir, &buf);
-    while (ret == 0) {
-        if (buf.d_type == 2) {
-            printf("Dir %s %d\n", buf.d_name, buf.d_type);
+    while (ret == 0 && buf.d_name[0] != '\0') {
+        if (buf.d_type == DT_DIR) {
+            printf("[%d] Dir %s %d\n", counter++, buf.d_name, buf.d_type);
             char next_dir[512];
             sprintf(next_dir, "%s%s/", dir, buf.d_name);
             printf("next: %s\n", next_dir);
 //            print_dir(next_dir);
         } else {
-            printf("File %s %d\n", buf.d_name, buf.d_type);
+            printf("[%d] File '%s' %d\n", counter++, buf.d_name, buf.d_type);
 
             // Check if this is an N64 rom
             char *dot = strrchr(buf.d_name, '.');
-            if (dot && !strcmp(dot, ".z64")) {
+            if (dot && !strcmp(dot, ".z64") && buf.d_name[0] != '.' && strcmp("hello.z64", buf.d_name) != 0) {
+                printf("Z64 file detected %s!\n", buf.d_name);
                 sprintf(paths[path_count++].game_path, "%s%s", dir, buf.d_name);
             }
         }
         ret = dir_findnext(dir, &buf);
     }
 
-    char *game_id_hello = "TEST";
+    printf("Found %d games... Detecting game type\n", path_count);
+    char game_id[4];
     for (int i = 0; i < path_count; i++) {
+        printf("Detecting game %s\n", paths[i].game_path);
         // Checks the 'unique' identifier for this rom
         FILE *game_rom = fopen(paths[i].game_path, "r");
         if (game_rom == NULL) {
@@ -237,19 +265,38 @@ void print_dir(char *dir) {
             return;
         }
         fseek(game_rom, 59, SEEK_SET);
-        fread(game_id_hello, 4, 1, game_rom);
+        fread(game_id, 4, 1, game_rom);
         fclose(game_rom);
-        printf("Detected game '%s' at %s \n", game_id_hello, paths[i].game_path);
+
+        // Checks if the game is a supported game
+        char is_supported = 0;
+        for (int sg = 0; sg < 3; sg++) {
+            if (strncmp(game_id, supported_games[sg].game_code, 4) == 0) {
+                printf("Detected %s!\n", supported_games[sg].name);
+                is_supported = 1;
+            }
+        }
+
+        if (is_supported == 0) {
+            printf("Unknown game detected '%.4s' at %s \n", game_id, paths[i].game_path);
+        }
     }
 }
 
 void detect_games() {
-//    if (!debug_init_sdfs("sd:/", -1)) {
+#ifdef N64_HARDWARE
+    if (!debug_init_sdfs("sd:/", -1)) {
+#else
     if (dfs_init(DFS_DEFAULT_LOCATION) != DFS_ESUCCESS) {
+#endif
         debug_print_and_stop("Error opening SD");
     }
 
+#ifdef N64_HARDWARE
+    print_dir("sd:/");
+#else
     print_dir("rom://");
+#endif
     debug_print_and_stop("done");
 }
 
