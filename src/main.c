@@ -190,20 +190,6 @@ typedef struct {
     char file_name[100];
 } GamePath;
 
-void detect_rom(char *game_path, char *game_id) {
-    // Checks the 'unique' identifier for this rom
-    FILE *game_rom = fopen(game_path, "r");
-    if (game_rom == NULL) {
-        debug_print_and_stop("Unable to open game rom");
-        return;
-    }
-    fseek(game_rom, 59, SEEK_SET);
-    char buffer[4];
-    fread(buffer, sizeof(buffer), 1, game_rom);
-    fclose(game_rom);
-    strcpy(game_id, buffer);
-}
-
 typedef enum {
     RAM,
     EEP
@@ -357,11 +343,6 @@ int main(void) {
         printf("Loading game data '%s'\n", save_path);
         loadGameData(&games[i], save_path, detected_games[i].supported_game.trophy_data_loader);
     }
-//    Game games[4];
-//    loadGameData(&games[0], "rom:/ED64/gamedata/1080.ram", get_game_data_1080);
-//    loadGameData(&games[1], "rom:/ED64/gamedata/1080.ram", get_game_data_mario64);
-//    loadGameData(&games[2], "rom:/ED64/gamedata/1080.ram", get_game_data_mario64);
-//    loadGameData(&games[3], "rom:/ED64/gamedata/1080.ram", get_game_data_super_smash_bros);
 
     while (1) {
         /* Grab a render buffer */

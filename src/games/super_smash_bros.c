@@ -59,6 +59,6 @@ void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
                     is_flag_set(saveState, 0x457, 0b1000));
     add_counter_trophy(game, "Target smasher", "Complete 'Break the Targets!' with all characters", GOLD,
                        12, get_targets_completed_count(saveState));
-    add_counter_trophy(game, "Family reunion", "Unlock all secret characters", GOLD,
+    add_counter_trophy(game, "So happy together", "Unlock all secret characters", GOLD,
                        4, get_unlocked_character_count(saveState));
 }
