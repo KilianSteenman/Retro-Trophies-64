@@ -26,6 +26,7 @@ int get_coin_star_count(FILE *saveState) {
 
 void get_game_data_mario64(Game *game, FILE *saveState) {
     strcpy(game->title, "Super Mario 64");
+    game->trophyCount = 0;
     add_bool_trophy(game, "Welcome to the third dimension", "Collect your first star", BRONZE,
                     is_greater_or_equal(saveState, 0xC, 1));
     add_bool_trophy(game, "Bob-omb boom!", "Collect all stars on Bob-omb battlefield", SILVER,

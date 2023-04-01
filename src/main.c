@@ -74,7 +74,7 @@ void draw_game_tile(display_context_t disp, int x, int y, Game game) {
     getGameStatus(game, &bronzeCount, &silverCount, &goldCount, &percentageCompleted);
 
     // Percentage
-    char percentageBuffer[12];
+    char percentageBuffer[4];
     sprintf(percentageBuffer, "%d%%", percentageCompleted);
     graphics_draw_text(disp, x + 450, y + 5, percentageBuffer);
     graphics_draw_progressbar(disp, x + 450, y + 15, 30, 3, graphics_make_color(255, 255, 255, 255),
