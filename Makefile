@@ -1,7 +1,7 @@
 V=1
 SOURCE_DIR=src
 BUILD_DIR=build
-PROG_NAME = coins
+PROG_NAME=coins
 
 include $(N64_INST)/include/n64.mk
 

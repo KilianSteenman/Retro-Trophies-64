@@ -209,8 +209,6 @@ typedef struct {
     char filename[100];
 } DetectedGame;
 
-//#define N64_HARDWARE
-
 char *strip_extension(const char *filename) {
     size_t len = strlen(filename);
     char *newfilename = malloc(len-3);
