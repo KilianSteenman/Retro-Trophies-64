@@ -11,8 +11,6 @@
 #include "games/super_mario_64.h"
 #include "games/super_smash_bros.h"
 
-//#define N64_HARDWARE
-
 typedef enum {
     GAME_SELECT,
     TROPHY_OVERVIEW
@@ -213,14 +211,15 @@ typedef struct {
 
 char *strip_extension(const char *filename) {
     size_t len = strlen(filename);
-    char *newfilename = malloc(len-3);
+    char *newfilename = malloc(len - 3);
     if (!newfilename) /* handle error */;
-    memcpy(newfilename, filename, len-4);
+    memcpy(newfilename, filename, len - 4);
     newfilename[len - 4] = 0;
     return newfilename;
 }
 
-void print_dir(char *dir, SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games, int *detected_game_count) {
+void print_dir(char *dir, SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games,
+               int *detected_game_count) {
     printf("Supported games:\n");
     for (int i = 0; i < supported_game_count; i++) {
         printf("%s - %s\n", supported_games[i].game_code, supported_games[i].name);
@@ -291,7 +290,8 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
     printf("Finished game detection\n");
 }
 
-void detect_games(SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games, int *detected_game_count) {
+void detect_games(SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games,
+                  int *detected_game_count) {
 #ifdef N64_HARDWARE
     if (!debug_init_sdfs("sd:/", -1)) {
 #else
@@ -338,7 +338,7 @@ int main(void) {
     int detected_game_count = 0;
     detect_games(supported_games, 3, detected_games, &detected_game_count);
 
-    printf("Loading trophy data\n");
+    debug_print_and_pause("Loading trophy data\n");
     Game games[5];
     for (int i = 0; i < detected_game_count; i++) {
         printf("Loading trophy data for %s\n", detected_games[i].filename);
@@ -351,10 +351,13 @@ int main(void) {
                 get_extension_for_save_type(detected_games[i].supported_game.save_type));
 #endif
         printf("Loading game data '%s'\n", save_path);
+
+        strcpy(games[i].title, detected_games[i].supported_game.name);
+        games[i].trophyCount = 0;
         loadGameData(&games[i], save_path, detected_games[i].supported_game.trophy_data_loader);
     }
 
-//    debug_print_and_stop("Loaded game data\n");
+    debug_print_and_pause("Loaded game data\n");
 
     while (1) {
         /* Grab a render buffer */
