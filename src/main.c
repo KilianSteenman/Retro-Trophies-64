@@ -176,7 +176,7 @@ void render_screen(display_context_t disp, Game game) {
 void loadGameData(Game *game, char *saveGame, void (*f)(Game *, FILE *)) {
     FILE *saveState = fopen(saveGame, "r");
     if (saveState == NULL) {
-        debug_print_and_stop("Save data unavailable");
+        printf("Save data unavailable for %s\n", game->title);
         return;
     }
 
@@ -211,20 +211,17 @@ typedef struct {
 
 char *strip_extension(const char *filename) {
     size_t len = strlen(filename);
-    char *newfilename = malloc(len-3);
+    char *newfilename = malloc(len - 3);
     if (!newfilename) /* handle error */;
-    memcpy(newfilename, filename, len-4);
+    memcpy(newfilename, filename, len - 4);
     newfilename[len - 4] = 0;
     return newfilename;
 }
 
-void print_dir(char *dir, DetectedGame *detected_games, int *detected_game_count) {
-    SupportedGame supported_games[3];
-    supported_games[0] = (SupportedGame) {.name = "1080 Snowboarding", .game_code = "TEA", .save_type = RAM, .trophy_data_loader = get_game_data_1080};
-    supported_games[1] = (SupportedGame) {.name = "Super Smash Bros", .game_code = "ALE", .save_type = RAM, .trophy_data_loader = get_game_data_super_smash_bros};
-    supported_games[2] = (SupportedGame) {.name = "Super Mario 64", .game_code = "SME", .save_type = EEP, .trophy_data_loader = get_game_data_mario64};
+void print_dir(char *dir, SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games,
+               int *detected_game_count) {
     printf("Supported games:\n");
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < supported_game_count; i++) {
         printf("%s - %s\n", supported_games[i].game_code, supported_games[i].name);
     }
 
@@ -268,6 +265,7 @@ void print_dir(char *dir, DetectedGame *detected_games, int *detected_game_count
             debug_print_and_stop("Unable to open game rom");
             return;
         }
+        // Game ID is at 60 (well 59 actually)
         fseek(game_rom, 60, SEEK_SET);
         fread(game_id, 3, 1, game_rom);
         fclose(game_rom);
@@ -289,9 +287,11 @@ void print_dir(char *dir, DetectedGame *detected_games, int *detected_game_count
             printf("Unknown game detected '%.3s' at %s \n", game_id, paths[i].game_path);
         }
     }
+    printf("Finished game detection\n");
 }
 
-void detect_games(DetectedGame *detected_games, int *detected_game_count) {
+void detect_games(SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games,
+                  int *detected_game_count) {
 #ifdef N64_HARDWARE
     if (!debug_init_sdfs("sd:/", -1)) {
 #else
@@ -301,9 +301,9 @@ void detect_games(DetectedGame *detected_games, int *detected_game_count) {
     }
 
 #ifdef N64_HARDWARE
-    print_dir("sd:/", detected_games, detected_game_count);
+    print_dir("sd:/", supported_games, supported_game_count, detected_games, detected_game_count);
 #else
-    print_dir("rom://", detected_games, detected_game_count);
+    print_dir("rom://", supported_games, supported_game_count, detected_games, detected_game_count);
 #endif
 //    debug_print_and_stop("done");
 }
@@ -311,7 +311,7 @@ void detect_games(DetectedGame *detected_games, int *detected_game_count) {
 char *get_extension_for_save_type(SaveType saveType) {
     switch (saveType) {
         case RAM:
-            return "ram";
+            return "srm";
         case EEP:
             return "eep";
         default:
@@ -329,18 +329,35 @@ int main(void) {
     debug_init_usblog();
     console_set_debug(true);
 
+    SupportedGame supported_games[3];
+    supported_games[0] = (SupportedGame) {.name = "1080 Snowboarding", .game_code = "TEA", .save_type = RAM, .trophy_data_loader = get_game_data_1080};
+    supported_games[1] = (SupportedGame) {.name = "Super Smash Bros", .game_code = "ALE", .save_type = RAM, .trophy_data_loader = get_game_data_super_smash_bros};
+    supported_games[2] = (SupportedGame) {.name = "Super Mario 64", .game_code = "SME", .save_type = EEP, .trophy_data_loader = get_game_data_mario64};
+
     DetectedGame detected_games[50];
     int detected_game_count = 0;
-    detect_games(detected_games, &detected_game_count);
+    detect_games(supported_games, 3, detected_games, &detected_game_count);
 
+    debug_print_and_pause("Loading trophy data\n");
     Game games[5];
     for (int i = 0; i < detected_game_count; i++) {
+        printf("Loading trophy data for %s\n", detected_games[i].filename);
         char save_path[512];
-        sprintf(save_path, "rom:/ED64/gamedata/%s.%s", detected_games[i].filename,
+#ifdef N64_HARDWARE
+        sprintf(save_path, "sd:/ED64/gamedata/%s.%s", detected_games[i].filename,
                 get_extension_for_save_type(detected_games[i].supported_game.save_type));
+#else
+        sprintf(save_path, "rom://ED64/gamedata/%s.%s", detected_games[i].filename,
+                get_extension_for_save_type(detected_games[i].supported_game.save_type));
+#endif
         printf("Loading game data '%s'\n", save_path);
+
+        strcpy(games[i].title, detected_games[i].supported_game.name);
+        games[i].trophyCount = 0;
         loadGameData(&games[i], save_path, detected_games[i].supported_game.trophy_data_loader);
     }
+
+    debug_print_and_pause("Loaded game data\n");
 
     while (1) {
         /* Grab a render buffer */
