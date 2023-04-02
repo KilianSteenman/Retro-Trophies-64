@@ -141,7 +141,22 @@ void render_screen(display_context_t disp, Game game) {
 
     int x = 10;
     int y = 10;
-    for (int i = 0; i < game.trophyCount; i++) {
+
+    // TODO: Clean this mess up, there are much easier ways to deal with this
+    int startIndex = 0;
+    int endIndex = game.trophyCount;
+    if (endIndex > 7) {
+        endIndex = 7;
+    }
+    if (selectedTrophy >= 7) {
+        startIndex = selectedTrophy - 6;
+        endIndex = startIndex + 7;
+        if (endIndex > game.trophyCount) {
+            endIndex = game.trophyCount;
+        }
+    }
+
+    for (int i = startIndex; i < endIndex; i++) {
         if (i == selectedTrophy) {
             graphics_set_color(0xFFFFFFFF, 0x0);
         } else if (game.trophies[i].isCollected == 1) {
@@ -149,7 +164,7 @@ void render_screen(display_context_t disp, Game game) {
         } else {
             graphics_set_color(graphics_make_color(0, 0, 255, 255), 0x0);
         }
-        draw_trophy(x, ((30 * i) + y), disp, game.trophies[i]);
+        draw_trophy(x, ((30 * (i - startIndex)) + y), disp, game.trophies[i]);
     }
 
     // Check controller input
