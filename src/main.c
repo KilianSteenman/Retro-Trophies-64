@@ -10,6 +10,7 @@
 #include "games/1080_snowboarding.h"
 #include "games/super_mario_64.h"
 #include "games/super_smash_bros.h"
+#include "games/mario_kart_64.h"
 
 typedef enum {
     GAME_SELECT,
@@ -287,7 +288,7 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
 
         // Checks if the game is a supported game
         char is_supported = 0;
-        for (int sg = 0; sg < 3; sg++) {
+        for (int sg = 0; sg < supported_game_count; sg++) {
             if (strncmp(game_id, supported_games[sg].game_code, 3) == 0) {
                 printf("Detected %s\n", supported_games[sg].name);
                 is_supported = 1;
@@ -320,7 +321,6 @@ void detect_games(SupportedGame *supported_games, int supported_game_count, Dete
 #else
     print_dir("rom://", supported_games, supported_game_count, detected_games, detected_game_count);
 #endif
-//    debug_print_and_stop("done");
 }
 
 char *get_extension_for_save_type(SaveType saveType) {
@@ -344,14 +344,15 @@ int main(void) {
     debug_init_usblog();
     console_set_debug(true);
 
-    SupportedGame supported_games[3];
+    SupportedGame supported_games[4];
     supported_games[0] = (SupportedGame) {.name = "1080 Snowboarding", .game_code = "TEA", .save_type = RAM, .trophy_data_loader = get_game_data_1080};
     supported_games[1] = (SupportedGame) {.name = "Super Smash Bros", .game_code = "ALE", .save_type = RAM, .trophy_data_loader = get_game_data_super_smash_bros};
     supported_games[2] = (SupportedGame) {.name = "Super Mario 64", .game_code = "SME", .save_type = EEP, .trophy_data_loader = get_game_data_mario64};
+    supported_games[3] = (SupportedGame) {.name = "Mario Kart 64", .game_code = "KTE", .save_type = EEP, .trophy_data_loader = get_game_data_mario_kart_64};
 
     DetectedGame detected_games[50];
     int detected_game_count = 0;
-    detect_games(supported_games, 3, detected_games, &detected_game_count);
+    detect_games(supported_games, 4, detected_games, &detected_game_count);
 
     debug_print_and_pause("Loading trophy data\n");
     Game games[5];
