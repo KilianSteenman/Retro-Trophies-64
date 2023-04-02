@@ -13,7 +13,7 @@ void add_bool_trophy(
         TrophyLevel level,
         int isCollected
 ) {
-    printf("Adding boolean trophy at index %d\n", game->trophyCount);
+//    printf("Adding boolean trophy at index %d\n", game->trophyCount);
     if (game->trophyCount >= MAX_TROPHY_COUNT) {
         debug_print_number_and_stop("Unable to add trophy: reached max trophy count", game->trophyCount);
         return;
@@ -35,7 +35,7 @@ void add_counter_trophy(
         int targetCount,
         int currentCount
 ) {
-    printf("Adding counter trophy at index %d\n", game->trophyCount);
+//    printf("Adding counter trophy at index %d\n", game->trophyCount);
     if (game->trophyCount >= MAX_TROPHY_COUNT) {
         debug_print_number_and_stop("Unable to add trophy: reached max trophy count", game->trophyCount);
         return;
