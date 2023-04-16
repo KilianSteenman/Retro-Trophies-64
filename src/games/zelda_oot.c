@@ -36,6 +36,7 @@ void get_trophy_data_zelda_oot(Game *game, FILE *saveState) {
     // Become an adult / Get master sword
     // Accepted by gerudo (entrance card)
     // Stone of agony ?
+    // Make Darunia dance
     // Finished the game (as far as possible)
     // = Upgrades =
     // Got all shields
@@ -72,6 +73,8 @@ void get_trophy_data_zelda_oot(Game *game, FILE *saveState) {
     // Biggest fish (hyrule loach)
     // Beat all minigames (slingshot, bow and arrow, bombshu, ?)
 
+    add_bool_trophy(game, "A wimp is still a wimp", "Get access to the Great Deku Tree", BRONZE,
+                    raw_is_flag_set(save_data, 0xEF5, 0b10000));
     add_bool_trophy(game, "It's a me", "Unlock Luigi", SILVER,
                     raw_is_flag_set(save_data, 0x457, 0b1));
 }

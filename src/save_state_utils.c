@@ -16,5 +16,6 @@ int raw_is_greater_or_equal(char *save_data, int address, int requiredValue) {
 }
 
 int raw_is_flag_set(char *save_data, int address, char flag) {
+    printf("Flag %d = %d\n", save_data[address], flag);
     return (save_data[address] & flag) == flag;
 }
