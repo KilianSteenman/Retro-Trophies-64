@@ -66,6 +66,7 @@ void get_trophy_data_zelda_oot(Game *game, FILE *saveState) {
     // [ ] Zeldas lullaby (or does this clash with meet zelda)
     // [ ] All masks
     // [ ] Big poes
+    // [ ] All maps and compasses
     // = Other =
     // [ ] Death count?
     // [ ] Play time?
@@ -76,11 +77,11 @@ void get_trophy_data_zelda_oot(Game *game, FILE *saveState) {
     add_bool_trophy(game, "A wimp is still a wimp", "Get access to the Great Deku Tree", BRONZE,
                     raw_is_flag_set(save_data, 0xEF5, 0b00010000));
     add_bool_trophy(game, "Good...bye...", "Obtain the Kokiri Emerald", SILVER,
-                    raw_is_flag_set(save_data, 0x0C6, 0b00000100));
+                    raw_is_flag_set(save_data, 0x0C5, 0b00000100));
     add_bool_trophy(game, "Sworn Brothers", "Obtain the Goron's Ruby", SILVER,
-                    raw_is_flag_set(save_data, 0x0C6, 0b00001000));
+                    raw_is_flag_set(save_data, 0x0C5, 0b00001000));
     add_bool_trophy(game, "Don't tell my father...", "Obtain Zora's Sapphire", SILVER,
-                    raw_is_flag_set(save_data, 0x0C6, 0b00010000));
+                    raw_is_flag_set(save_data, 0x0C5, 0b00010000));
     add_bool_trophy(game, "Creepy little buggers", "Collect your first Gold Skulltula", BRONZE,
-                    raw_is_flag_set(save_data, 0x0C6, 0b10000000));
+                    raw_is_flag_set(save_data, 0x0C5, 0b10000000));
 }
