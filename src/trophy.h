@@ -7,11 +7,6 @@
 
 #include <stdio.h>
 
-typedef struct {
-    int address;
-    int value;
-} Requirement;
-
 typedef enum {
     BRONZE,
     SILVER,

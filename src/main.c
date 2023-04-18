@@ -2,6 +2,7 @@
 #include <libdragon.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "game.h"
 #include "trophy.h"
@@ -250,15 +251,7 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
     dir_t buf;
     int ret = dir_findfirst(dir, &buf);
     while (ret == 0 && buf.d_name[0] != '\0') {
-        if (buf.d_type == DT_DIR) {
-            //printf("[%d] Dir %s %d\n", counter++, buf.d_name, buf.d_type);
-//            char next_dir[512];
-            //sprintf(next_dir, "%s%s/", dir, buf.d_name);
-            //printf("next: %s\n", next_dir);
-//            print_dir(next_dir);
-        } else {
-//            printf("[%d] File '%s' %d\n", counter++, buf.d_name, buf.d_type);
-
+        if (buf.d_type != DT_DIR) {
             // Check if this is an N64 rom
             char *dot = strrchr(buf.d_name, '.');
             if (dot && !strcmp(dot, ".z64") && buf.d_name[0] != '.') {
@@ -288,11 +281,11 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
         fclose(game_rom);
 
         // Checks if the game is a supported game
-        char is_supported = 0;
+        bool is_supported = false;
         for (int sg = 0; sg < supported_game_count; sg++) {
             if (strncmp(game_id, supported_games[sg].game_code, 3) == 0) {
                 printf("Detected %s\n", supported_games[sg].name);
-                is_supported = 1;
+                is_supported = true;
 
                 strcpy(detected_games[*detected_game_count].filename, paths[i].file_name);
                 detected_games[*detected_game_count].supported_game = supported_games[sg];
@@ -300,7 +293,7 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
             }
         }
 
-        if (is_supported == 0) {
+        if (is_supported) {
             printf("Unknown game detected '%.3s' at %s \n", game_id, paths[i].game_path);
         }
     }
