@@ -24,6 +24,11 @@ Game *selectedGame;
 int selectedGameIndex = 0;
 int selectedTrophy = 0;
 
+sprite_t *bronze;
+sprite_t *silver;
+sprite_t *gold;
+sprite_t *platinum;
+
 void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
     graphics_draw_text(disp, x, y, trophy.title);
     graphics_draw_text(disp, x, y + 10, trophy.description);
@@ -101,9 +106,13 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
     get_trophy_totals(games, gameCount, &bronzeCount, &silverCount, &goldCount, &completedCount);
     graphics_set_color(0xFF0000FF, 0x0);
     graphics_draw_number(disp, 10, 10, bronzeCount);
+    graphics_draw_sprite_trans(disp, 10, 10, bronze);
     graphics_draw_number(disp, 50, 10, silverCount);
+    graphics_draw_sprite_trans(disp, 50, 10, silver);
     graphics_draw_number(disp, 90, 10, goldCount);
+    graphics_draw_sprite_trans(disp, 90, 10, gold);
     graphics_draw_number(disp, 130, 10, completedCount);
+    graphics_draw_sprite_trans(disp, 130, 10, platinum);
 
     for (int i = 0; i < gameCount; i++) {
 
@@ -328,6 +337,28 @@ char *get_extension_for_save_type(SaveType saveType) {
     }
 }
 
+void load_sprite_data() {
+    int fp = dfs_open("/trophy_bronze.sprite");
+    bronze = malloc(dfs_size(fp));
+    dfs_read(bronze, 1, dfs_size(fp), fp);
+    dfs_close(fp);
+
+    fp = dfs_open("/trophy_silver.sprite");
+    silver = malloc(dfs_size(fp));
+    dfs_read(silver, 1, dfs_size(fp), fp);
+    dfs_close(fp);
+
+    fp = dfs_open("/trophy_gold.sprite");
+    gold = malloc(dfs_size(fp));
+    dfs_read(gold, 1, dfs_size(fp), fp);
+    dfs_close(fp);
+
+    fp = dfs_open("/trophy_platinum.sprite");
+    platinum = malloc(dfs_size(fp));
+    dfs_read(platinum, 1, dfs_size(fp), fp);
+    dfs_close(fp);
+}
+
 int main(void) {
     display_init(RESOLUTION_320x240, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
     dfs_init(DFS_DEFAULT_LOCATION);
@@ -337,6 +368,8 @@ int main(void) {
 
     debug_init_usblog();
     console_set_debug(true);
+
+    load_sprite_data();
 
     // TODO: Make this dynamic
     SupportedGame supported_games[5];
