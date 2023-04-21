@@ -100,19 +100,32 @@ void on_game_selected(Game *game) {
     selectedTrophy = 0;
 }
 
+void draw_trophy_counter(display_context_t disp, int x, int y, int count, sprite_t *sprite) {
+    graphics_draw_number(disp, x, y, count);
+
+    const mirror_t mirror = MIRROR_DISABLED;
+    rdp_load_texture(0, 0, mirror, sprite);
+//    rdp_draw_textured_rectangle(0, x + 10, y - 5, x + 25, y + 10, mirror);
+    rdp_draw_textured_rectangle_scaled(0, x + 10, y - 5, x + 26, y - 5 + 16, 1.0, 1.0, mirror);
+//    graphics_draw_sprite_trans(disp, x + 10, y - 5, sprite);
+}
+
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
     // draw totals
     int bronzeCount = 0, silverCount = 0, goldCount = 0, completedCount = 0;
     get_trophy_totals(games, gameCount, &bronzeCount, &silverCount, &goldCount, &completedCount);
     graphics_set_color(0xFF0000FF, 0x0);
-    graphics_draw_number(disp, 10, 10, bronzeCount);
-    graphics_draw_sprite_trans(disp, 10, 10, bronze);
-    graphics_draw_number(disp, 50, 10, silverCount);
-    graphics_draw_sprite_trans(disp, 50, 10, silver);
-    graphics_draw_number(disp, 90, 10, goldCount);
-    graphics_draw_sprite_trans(disp, 90, 10, gold);
-    graphics_draw_number(disp, 130, 10, completedCount);
-    graphics_draw_sprite_trans(disp, 130, 10, platinum);
+
+    rdp_sync(SYNC_PIPE);
+    rdp_set_default_clipping();
+    rdp_attach(disp);
+    rdp_enable_primitive_fill();
+    rdp_enable_texture_copy();
+    draw_trophy_counter(disp, 10, 10, bronzeCount, bronze);
+    draw_trophy_counter(disp, 50, 10, silverCount, silver);
+    draw_trophy_counter(disp, 90, 10, goldCount, gold);
+    draw_trophy_counter(disp, 130, 10, completedCount, platinum);
+    rdp_detach();
 
     for (int i = 0; i < gameCount; i++) {
 
@@ -361,6 +374,7 @@ void load_sprite_data() {
 
 int main(void) {
     display_init(RESOLUTION_320x240, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
+    rdp_init();
     dfs_init(DFS_DEFAULT_LOCATION);
 
     console_init();
