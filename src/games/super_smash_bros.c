@@ -28,6 +28,10 @@ char did_finish_break_the_targets(char *save_data, Character character) {
     return raw_is_equal(save_data, 0x470 + 0x20 * character, 10);
 }
 
+char did_finish_board_the_platforms(char *save_data, Character character) {
+    return raw_is_equal(save_data, 0x478 + 0x20 * character, 10);
+}
+
 char get_unlocked_character_count(char *save_data) {
     char count = 0;
     count += raw_is_flag_set(save_data, 0x457, 0b1);
@@ -41,6 +45,16 @@ char get_targets_completed_count(char *save_data) {
     char count = 0;
     for (int i = MARIO; i <= NESS; i++) {
         if (did_finish_break_the_targets(save_data, i)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+char get_platforms_completed_count(char *save_data) {
+    char count = 0;
+    for (int i = MARIO; i <= NESS; i++) {
+        if (did_finish_board_the_platforms(save_data, i)) {
             count++;
         }
     }
@@ -63,6 +77,8 @@ void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
                     raw_is_flag_set(save_data, 0x457, 0b1000));
     add_counter_trophy(game, "Target smasher", "Complete 'Break the Targets!' with all characters", GOLD,
                        12, get_targets_completed_count(save_data));
+    add_counter_trophy(game, "Jump jump jump", "Complete 'Board the Platforms!' with all characters", GOLD,
+                       12, get_platforms_completed_count(save_data));
     add_counter_trophy(game, "So happy together", "Unlock all secret characters", GOLD,
                        4, get_unlocked_character_count(save_data));
 }

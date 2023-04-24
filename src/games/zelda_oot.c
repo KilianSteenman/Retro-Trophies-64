@@ -10,6 +10,10 @@
 #include "../game.h"
 #include "../save_state_utils.h"
 
+int get_skulltula_count(char *save_data) {
+    return 0;
+}
+
 void get_trophy_data_zelda_oot(Game *game, FILE *saveState) {
     char save_data[32768];
     if (fread(&save_data, sizeof(save_data), 1, saveState)) {
@@ -84,4 +88,6 @@ void get_trophy_data_zelda_oot(Game *game, FILE *saveState) {
                     raw_is_flag_set(save_data, 0x0C5, 0b00010000));
     add_bool_trophy(game, "Creepy little buggers", "Collect your first Gold Skulltula", BRONZE,
                     raw_is_flag_set(save_data, 0x0C5, 0b10000000));
+    add_counter_trophy(game, "At least it's not 900", "Collect all Gold Skulltulas", SILVER,
+                       100, get_skulltula_count(save_data));
 }
