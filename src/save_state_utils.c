@@ -19,3 +19,7 @@ int raw_is_flag_set(char *save_data, int address, char flag) {
     printf("Flag %d = %d\n", save_data[address], flag);
     return (save_data[address] & flag) == flag;
 }
+
+int read_short(char *save_data, int address) {
+    return (((short) save_data[address + 1]) << 8) | save_data[address];
+}

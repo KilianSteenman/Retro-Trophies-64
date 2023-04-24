@@ -61,6 +61,14 @@ char get_platforms_completed_count(char *save_data) {
     return count;
 }
 
+char get_bonus_challenges_complete(char *save_data) {
+    return (get_platforms_completed_count(save_data) == 12) + (get_targets_completed_count(save_data) == 12);
+}
+
+char get_vs_matches_played(char *save_data) {
+    return read_ushort(save_data, 0x5E0);
+}
+
 void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
     char save_data[32768];
     if (fread(&save_data, sizeof(save_data), 1, saveState)) {
@@ -75,10 +83,14 @@ void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
                     raw_is_flag_set(save_data, 0x457, 0b10));
     add_bool_trophy(game, "Sweet dreams", "Unlock Jigglypuff", SILVER,
                     raw_is_flag_set(save_data, 0x457, 0b1000));
-    add_counter_trophy(game, "Target smasher", "Complete 'Break the Targets!' with all characters", GOLD,
+    add_counter_trophy(game, "Target smasher", "Complete 'Break the Targets!' with all characters", SILVER,
                        12, get_targets_completed_count(save_data));
-    add_counter_trophy(game, "Jump jump jump", "Complete 'Board the Platforms!' with all characters", GOLD,
+    add_counter_trophy(game, "Jump jump jump", "Complete 'Board the Platforms!' with all characters", SILVER,
                        12, get_platforms_completed_count(save_data));
+    add_counter_trophy(game, "Sound Tester", "Complete both bonus challenges", GOLD,
+                       2, get_bonus_challenges_complete(save_data));
+    add_counter_trophy(game, "Pokeballs only", "Unlock item switch by playing 100 VS matches", GOLD,
+                       100, get_vs_matches_played(save_data));
     add_counter_trophy(game, "So happy together", "Unlock all secret characters", GOLD,
                        4, get_unlocked_character_count(save_data));
 }
