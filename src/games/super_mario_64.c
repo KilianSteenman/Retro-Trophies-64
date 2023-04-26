@@ -70,6 +70,10 @@ char is_second_floor_unlocked(char *save_data) {
     return raw_is_flag_set(save_data, 0xB, 0b10000000);
 }
 
+char is_moat_drained(char *save_data) {
+    return raw_is_flag_set(save_data, 0xA, 0b10);
+}
+
 void get_game_data_mario64(Game *game, FILE *saveState) {
     char save_data[512];
     if (fread(&save_data, sizeof(save_data), 1, saveState)) {
@@ -118,6 +122,8 @@ void get_game_data_mario64(Game *game, FILE *saveState) {
                     is_basement_unlocked(save_data));
     add_bool_trophy(game, "The higher the better", "Get access to the second floor", GOLD,
                     is_second_floor_unlocked(save_data));
+    add_bool_trophy(game, "Down the drain", "Drain the moat", SILVER,
+                    is_moat_drained(save_data));
     add_counter_trophy(game, "It's all about the money", "Collect all coin stars", SILVER,
                        15, get_coin_star_count(save_data));
 }
