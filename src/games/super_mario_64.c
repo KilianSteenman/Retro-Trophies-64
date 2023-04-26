@@ -39,8 +39,8 @@ int get_coin_star_count(char *save_data) {
     return coinStarsCollected;
 }
 
-int get_star_count_for_map(char *save_data, Map map) {
-    int map_flags = save_data[12 + map];
+int get_star_count_for_address(char *save_data, int address) {
+    int map_flags = save_data[address];
     return ((map_flags & 0b1) == 0b1) +
            ((map_flags & 0b10) == 0b10) +
            ((map_flags & 0b100) == 0b100) +
@@ -48,6 +48,28 @@ int get_star_count_for_map(char *save_data, Map map) {
            ((map_flags & 0b10000) == 0b10000) +
            ((map_flags & 0b100000) == 0b100000) +
            ((map_flags & 0b1000000) == 0b1000000);
+}
+
+int get_star_count_for_map(char *save_data, Map map) {
+    return get_star_count_for_address(save_data, 12 + map);
+}
+
+int get_star_count(char *save_data) {
+    int star_count = 0;
+    star_count += get_star_count_for_address(save_data, 0x8);
+    for(int i = BOBOMB_BATTLEFIELD; i <= RAINBOW_RIDE; i++) {
+        star_count += get_star_count_for_map(save_data, i);
+    }
+    star_count += get_star_count_for_address(save_data, 0x1B);
+    star_count += get_star_count_for_address(save_data, 0x1C);
+    star_count += get_star_count_for_address(save_data, 0x1D);
+    star_count += get_star_count_for_address(save_data, 0x1E);
+    star_count += get_star_count_for_address(save_data, 0x1F);
+    star_count += get_star_count_for_address(save_data, 0x20);
+    star_count += get_star_count_for_address(save_data, 0x21);
+    star_count += get_star_count_for_address(save_data, 0x22);
+    star_count += get_star_count_for_address(save_data, 0x23);
+    return star_count;
 }
 
 char is_wing_cap_switch_activated(char *save_data) {
@@ -124,6 +146,8 @@ void get_game_data_mario64(Game *game, FILE *saveState) {
                     is_second_floor_unlocked(save_data));
     add_bool_trophy(game, "Down the drain", "Drain the moat", SILVER,
                     is_moat_drained(save_data));
-    add_counter_trophy(game, "It's all about the money", "Collect all coin stars", SILVER,
+    add_counter_trophy(game, "It's all about the money", "Collect all coin stars", GOLD,
                        15, get_coin_star_count(save_data));
+    add_counter_trophy(game, "Stargazer", "Collect all stars", GOLD,
+                       120, get_star_count(save_data));
 }
