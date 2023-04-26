@@ -89,7 +89,7 @@ void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
                        12, get_platforms_completed_count(save_data));
     add_counter_trophy(game, "Sound Tester", "Complete both bonus challenges", GOLD,
                        2, get_bonus_challenges_complete(save_data));
-    add_counter_trophy(game, "Pokeballs only", "Unlock item switch by playing 100 VS matches", GOLD,
+    add_counter_trophy(game, "Pokeballs only", "Unlock 'item switch' by playing 100 VS matches", GOLD,
                        100, get_vs_matches_played(save_data));
     add_counter_trophy(game, "So happy together", "Unlock all secret characters", GOLD,
                        4, get_unlocked_character_count(save_data));

@@ -50,6 +50,18 @@ int get_star_count_for_map(char *save_data, Map map) {
            ((map_flags & 0b1000000) == 0b1000000);
 }
 
+char is_wing_cap_switch_activated(char *save_data) {
+    return raw_is_flag_set(save_data, 0xB, 0b10);
+}
+
+char is_metal_cap_switch_activated(char *save_data) {
+    return raw_is_flag_set(save_data, 0xB, 0b100);
+}
+
+char is_vanish_cap_switch_activated(char *save_data) {
+    return raw_is_flag_set(save_data, 0xB, 0b1000);
+}
+
 void get_game_data_mario64(Game *game, FILE *saveState) {
     char save_data[512];
     if (fread(&save_data, sizeof(save_data), 1, saveState)) {
@@ -88,6 +100,12 @@ void get_game_data_mario64(Game *game, FILE *saveState) {
                        7, get_star_count_for_map(save_data, TICK_TOCK_CLOCK));
     add_counter_trophy(game, "Somewhere over the rainbow", "Collect all stars on Rainbow Ride", SILVER,
                        7, get_star_count_for_map(save_data, RAINBOW_RIDE));
+    add_bool_trophy(game, "Come fly with me", "Activate the wing cap switch", SILVER,
+                    is_wing_cap_switch_activated(save_data));
+    add_bool_trophy(game, "Heavy hitter", "Activate the metal cap switch", SILVER,
+                    is_metal_cap_switch_activated(save_data));
+    add_bool_trophy(game, "Where did you go?", "Activate the vanish cap switch", SILVER,
+                    is_vanish_cap_switch_activated(save_data));
     add_counter_trophy(game, "It's all about the money", "Collect all coin stars", SILVER,
                        15, get_coin_star_count(save_data));
 }
