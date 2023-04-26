@@ -66,7 +66,7 @@ char get_bonus_challenges_complete(char *save_data) {
 }
 
 char get_vs_matches_played(char *save_data) {
-    return read_ushort(save_data, 0x5E0);
+    return read_short(save_data, 0x5E0);
 }
 
 void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
