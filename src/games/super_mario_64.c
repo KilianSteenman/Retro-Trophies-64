@@ -7,6 +7,8 @@
 #include "../save_state_utils.h"
 #include "../game.h"
 
+const char COIN_STAR_FLAG = 0b1000000;
+
 typedef enum {
     BOBOMB_BATTLEFIELD = 0,
     WHOMPS_FORTRESS = 1,
@@ -26,14 +28,10 @@ typedef enum {
 } Map;
 
 int get_coin_star_count(char *save_data) {
-    // There are 15 coin counters starting at offset 0x25
     int coinStarsCollected = 0;
-    char coinCount;
-    for (int i = 0; i < 15; i++) {
-        coinCount = save_data[0x25 + i];
-        if (coinCount >= 100) {
-            coinStarsCollected++;
-        }
+    for (int i = BOBOMB_BATTLEFIELD; i <= RAINBOW_RIDE; i++) {
+        int map_flags = save_data[12 + i];
+        coinStarsCollected += ((map_flags & COIN_STAR_FLAG) == COIN_STAR_FLAG);
     }
 
     return coinStarsCollected;
