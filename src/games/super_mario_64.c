@@ -57,7 +57,7 @@ int get_star_count_for_map(char *save_data, Map map) {
 int get_star_count(char *save_data) {
     int star_count = 0;
     star_count += get_star_count_for_address(save_data, 0x8);
-    for(int i = BOBOMB_BATTLEFIELD; i <= RAINBOW_RIDE; i++) {
+    for (int i = BOBOMB_BATTLEFIELD; i <= RAINBOW_RIDE; i++) {
         star_count += get_star_count_for_map(save_data, i);
     }
     star_count += get_star_count_for_address(save_data, 0x1B);
@@ -92,6 +92,10 @@ char is_second_floor_unlocked(char *save_data) {
     return raw_is_flag_set(save_data, 0xB, 0b10000000);
 }
 
+char is_third_floor_unlocked(char *save_data) {
+    return get_star_count(save_data) >= 50;
+}
+
 char is_moat_drained(char *save_data) {
     return raw_is_flag_set(save_data, 0xA, 0b10);
 }
@@ -105,7 +109,7 @@ void get_game_data_mario64(Game *game, FILE *saveState) {
     add_bool_trophy(game, "Welcome to the third dimension", "Collect your first star", BRONZE,
                     raw_is_greater_or_equal(save_data, 0xC, 1));
     add_counter_trophy(game, "Bob-omb boom!", "Collect all stars on Bob-omb battlefield", SILVER,
-                    7, get_star_count_for_map(save_data, BOBOMB_BATTLEFIELD));
+                       7, get_star_count_for_map(save_data, BOBOMB_BATTLEFIELD));
     add_counter_trophy(game, "Whompty Thwompty", "Collect all stars on Whomp's fortress", SILVER,
                        7, get_star_count_for_map(save_data, WHOMPS_FORTRESS));
     add_counter_trophy(game, "Mayday", "Collect all stars on Jolly Roger Bay", SILVER,
@@ -144,6 +148,8 @@ void get_game_data_mario64(Game *game, FILE *saveState) {
                     is_basement_unlocked(save_data));
     add_bool_trophy(game, "The higher the better", "Get access to the second floor", GOLD,
                     is_second_floor_unlocked(save_data));
+    add_bool_trophy(game, "Up up up", "Get access to the third floor", GOLD,
+                    is_third_floor_unlocked(save_data));
     add_bool_trophy(game, "Down the drain", "Drain the moat", SILVER,
                     is_moat_drained(save_data));
     add_counter_trophy(game, "It's all about the money", "Collect all coin stars", GOLD,
