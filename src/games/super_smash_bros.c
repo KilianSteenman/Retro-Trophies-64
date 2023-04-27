@@ -75,13 +75,13 @@ void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
         printf("Read super smash bros save game into memory\n");
     }
 
-    add_bool_trophy(game, "It's a me", "Unlock Luigi", SILVER,
+    add_bool_trophy_spoiler(game, "It's a me", "Unlock Luigi", SILVER,
                     raw_is_flag_set(save_data, 0x457, 0b1));
-    add_bool_trophy(game, "I'll take on anybody, anytime", "Unlock Captain Falcon", SILVER,
+    add_bool_trophy_spoiler(game, "I'll take on anybody, anytime", "Unlock Captain Falcon", SILVER,
                     raw_is_flag_set(save_data, 0x457, 0b100));
-    add_bool_trophy(game, "Fuzzy pickles", "Unlock Ness", SILVER,
+    add_bool_trophy_spoiler(game, "Fuzzy pickles", "Unlock Ness", SILVER,
                     raw_is_flag_set(save_data, 0x457, 0b10));
-    add_bool_trophy(game, "Sweet dreams", "Unlock Jigglypuff", SILVER,
+    add_bool_trophy_spoiler(game, "Sweet dreams", "Unlock Jigglypuff", SILVER,
                     raw_is_flag_set(save_data, 0x457, 0b1000));
     add_counter_trophy(game, "Target smasher", "Complete 'Break the Targets!' with all characters", SILVER,
                        12, get_targets_completed_count(save_data));

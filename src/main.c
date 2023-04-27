@@ -29,9 +29,17 @@ sprite_t *silver;
 sprite_t *gold;
 sprite_t *platinum;
 
+const char *spoilerDescription = "Trophy contains spoilers";
+
 void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
+    char description[120];
+    if (trophy.containsSpoilers) {
+        strcpy(description, spoilerDescription);
+    } else {
+        strcpy(description, trophy.description);
+    }
     graphics_draw_text(disp, x, y, trophy.title);
-    graphics_draw_text(disp, x, y + 10, trophy.description);
+    graphics_draw_text(disp, x, y + 10, description);
 
     if (trophy.type == COUNTER) {
         char buffer[100];

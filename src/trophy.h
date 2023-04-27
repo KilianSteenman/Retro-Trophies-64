@@ -5,6 +5,7 @@
 #ifndef N64_ACHIEVEMENT_COINS_TROPHY_H
 #define N64_ACHIEVEMENT_COINS_TROPHY_H
 
+#include <stdbool.h>
 #include <stdio.h>
 
 typedef enum {
@@ -26,7 +27,8 @@ typedef struct {
     char description[120];
     int targetCount;
     int currentCount;
-    char isCollected;
+    bool isCollected;
+    bool containsSpoilers;
 } Trophy;
 
 #endif //N64_ACHIEVEMENT_COINS_TROPHY_H

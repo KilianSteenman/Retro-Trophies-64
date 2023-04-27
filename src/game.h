@@ -5,6 +5,7 @@
 #ifndef N64_ACHIEVEMENT_COINS_GAME_H
 #define N64_ACHIEVEMENT_COINS_GAME_H
 
+#include <stdbool.h>
 #include <string.h>
 
 #include "trophy.h"
@@ -22,10 +23,27 @@ void add_bool_trophy(
         char *title,
         char *description,
         TrophyLevel level,
-        int isCollected
+        bool isCollected
+);
+
+void add_bool_trophy_spoiler(
+        Game *game,
+        char *title,
+        char *description,
+        TrophyLevel level,
+        bool isCollected
 );
 
 void add_counter_trophy(
+        Game *game,
+        char *title,
+        char *description,
+        TrophyLevel level,
+        int targetCount,
+        int currentCount
+);
+
+void add_counter_trophy_spoiler(
         Game *game,
         char *title,
         char *description,
