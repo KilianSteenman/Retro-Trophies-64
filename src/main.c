@@ -21,13 +21,22 @@ typedef enum {
 
 State state = GAME_SELECT;
 Game *selectedGame;
-int selectedGameIndex = 0;
-int selectedTrophy = 0;
 
 sprite_t *bronze;
 sprite_t *silver;
 sprite_t *gold;
-sprite_t *platinum;
+
+typedef struct {
+    int startIndex;
+    int selectedIndex;
+    int endIndex;
+
+    int itemCount;
+    int maxIndex;
+} ListSelection;
+
+ListSelection *gameSelection;
+ListSelection *trophySelection;
 
 const char *spoilerDescription = "Trophy contains spoilers";
 
@@ -79,8 +88,21 @@ get_trophy_totals(Game *games, int gameCount, int *bronzeCount, int *silverCount
     }
 }
 
+void draw_trophy_counter(display_context_t disp, int x, int y, int count, sprite_t *sprite) {
+    graphics_draw_number(disp, x, y + 20, count);
+    graphics_draw_sprite_trans(disp, x, y, sprite);
+}
+
+void graphics_draw_bordered_box(display_context_t disp, int x, int y, int width, int height, int backgroundColor,
+                                int borderColor, int borderThickness) {
+    graphics_draw_box(disp, x, y, width, height, borderColor);
+    graphics_draw_box(disp, x + borderThickness, y + borderThickness, width - (borderThickness * 2),
+                      height - (borderThickness * 2), backgroundColor);
+}
+
 void draw_game_tile(display_context_t disp, int x, int y, Game game) {
-    graphics_draw_box(disp, x, y, 620, 25, graphics_make_color(14, 128, 17, 255));
+    graphics_draw_bordered_box(disp, x, y, 620, 40, graphics_make_color(14, 128, 17, 255),
+                               graphics_make_color(255, 0, 0, 255), 2);
     graphics_draw_text(disp, x + 5, y + 5, game.title);
 
     int bronzeCount = 0;
@@ -97,61 +119,112 @@ void draw_game_tile(display_context_t disp, int x, int y, Game game) {
                               graphics_make_color(255, 0, 0, 255), percentageCompleted);
 
     // Trophy counts
-    graphics_draw_number(disp, x + 500, y + 5, bronzeCount);
-    graphics_draw_number(disp, x + 530, y + 5, silverCount);
-    graphics_draw_number(disp, x + 560, y + 5, goldCount);
+    draw_trophy_counter(disp, x + 500, y + 6, bronzeCount, bronze);
+    draw_trophy_counter(disp, x + 530, y + 6, silverCount, silver);
+    draw_trophy_counter(disp, x + 560, y + 6, goldCount, gold);
 }
 
 void on_game_selected(Game *game) {
     selectedGame = game;
     state = TROPHY_OVERVIEW;
-    selectedTrophy = 0;
+
+    trophySelection->selectedIndex = 0;
+    trophySelection->maxIndex = game->trophyCount;
+    if(trophySelection->maxIndex <= trophySelection->itemCount) {
+        trophySelection->endIndex = trophySelection->maxIndex;
+    }
+}
+
+ListSelection *list_selection_new(int itemCount, int maxIndex) {
+    ListSelection *ls = malloc(sizeof(ListSelection));
+    ls->itemCount = itemCount;
+    ls->maxIndex = maxIndex;
+
+    ls->selectedIndex = 0;
+    ls->startIndex = 0;
+    ls->endIndex = itemCount;
+    return ls;
+}
+
+void move_up(ListSelection *ls) {
+    ls->selectedIndex--;
+    if (ls->selectedIndex < 0) {
+        ls->selectedIndex = ls->maxIndex - 1;
+        ls->endIndex = ls->maxIndex;
+        ls->startIndex = ls->maxIndex - ls->itemCount;
+
+        // Make sure startIndex is within bounds
+        if (ls->startIndex < 0) {
+            ls->startIndex = 0;
+        }
+    }
+
+    if (ls->selectedIndex < ls->startIndex) {
+        ls->startIndex = ls->selectedIndex;
+        ls->endIndex = ls->startIndex + ls->itemCount;
+    }
+
+    // Don't exceed the bottom of the list
+    if (ls->endIndex > ls->maxIndex) {
+        ls->endIndex = ls->maxIndex;
+    }
+}
+
+void move_down(ListSelection *ls) {
+    ls->selectedIndex++;
+    if (ls->selectedIndex >= ls->maxIndex) {
+        ls->selectedIndex = 0;
+        ls->startIndex = 0;
+        ls->endIndex = ls->itemCount;
+    }
+
+    // Start moving down the list when we reached the bottom of the screen
+    if ((ls->selectedIndex - ls->startIndex) >= ls->itemCount) {
+        ls->startIndex = ls->selectedIndex - ls->itemCount + 1;
+        ls->endIndex = ls->startIndex + ls->itemCount;
+    }
+
+    // Don't exceed the bottom of the list
+    if (ls->endIndex > ls->maxIndex) {
+        ls->endIndex = ls->maxIndex;
+    }
 }
 
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
-    // draw totals
-    int bronzeCount = 0, silverCount = 0, goldCount = 0, completedCount = 0;
-    get_trophy_totals(games, gameCount, &bronzeCount, &silverCount, &goldCount, &completedCount);
-    graphics_set_color(0xFF0000FF, 0x0);
-    graphics_draw_number(disp, 10, 10, bronzeCount);
-    graphics_draw_sprite_trans(disp, 10, 10, bronze);
-    graphics_draw_number(disp, 50, 10, silverCount);
-    graphics_draw_sprite_trans(disp, 50, 10, silver);
-    graphics_draw_number(disp, 90, 10, goldCount);
-    graphics_draw_sprite_trans(disp, 90, 10, gold);
-    graphics_draw_number(disp, 130, 10, completedCount);
-    graphics_draw_sprite_trans(disp, 130, 10, platinum);
-
-    for (int i = 0; i < gameCount; i++) {
-
-        /* Set the text output color */
-        if (i == selectedGameIndex) {
-            graphics_set_color(0xFFFFFFFF, 0x0);
-        } else {
-            graphics_set_color(0xFF0000FF, 0x0);
-        }
-
-        draw_game_tile(disp, 10, i * 30 + 30, games[i]);
-    }
-
     // Check controller input
     controller_scan();
     struct controller_data ckeys = get_keys_down();
 
     if (ckeys.c[0].down) {
-        selectedGameIndex++;
+        move_down(gameSelection);
     } else if (ckeys.c[0].up) {
-        selectedGameIndex--;
-    }
-
-    if (selectedGameIndex == -1) {
-        selectedGameIndex = gameCount - 1;
-    } else if (selectedGameIndex == gameCount) {
-        selectedGameIndex = 0;
+        move_up(gameSelection);
     }
 
     if (ckeys.c[0].A) {
-        on_game_selected(&games[selectedGameIndex]);
+        on_game_selected(&games[gameSelection->selectedIndex]);
+    }
+
+    // Render
+
+    // draw totals
+    int bronzeCount = 0, silverCount = 0, goldCount = 0, completedCount = 0;
+    get_trophy_totals(games, gameCount, &bronzeCount, &silverCount, &goldCount, &completedCount);
+    graphics_set_color(0xFF0000FF, 0x0);
+    draw_trophy_counter(disp, 20, 10, bronzeCount, bronze);
+    draw_trophy_counter(disp, 60, 10, silverCount, silver);
+    draw_trophy_counter(disp, 100, 10, goldCount, gold);
+
+    for (int i = gameSelection->startIndex; i < gameSelection->endIndex; i++) { // TODO: Not hardcode this
+
+        /* Set the text output color */
+        if (i == gameSelection->selectedIndex) {
+            graphics_set_color(0xFFFFFFFF, 0x0);
+        } else {
+            graphics_set_color(0xFF0000FF, 0x0);
+        }
+
+        draw_game_tile(disp, 10, (i - gameSelection->startIndex) * 40 + 40, games[i]);
     }
 }
 
@@ -162,29 +235,15 @@ void render_screen(display_context_t disp, Game game) {
     int x = 10;
     int y = 10;
 
-    // TODO: Clean this mess up, there are much easier ways to deal with this
-    int startIndex = 0;
-    int endIndex = game.trophyCount;
-    if (endIndex > 7) {
-        endIndex = 7;
-    }
-    if (selectedTrophy >= 7) {
-        startIndex = selectedTrophy - 6;
-        endIndex = startIndex + 7;
-        if (endIndex > game.trophyCount) {
-            endIndex = game.trophyCount;
-        }
-    }
-
-    for (int i = startIndex; i < endIndex; i++) {
-        if (i == selectedTrophy) {
+    for (int i = trophySelection->startIndex; i < trophySelection->endIndex; i++) {
+        if (i == trophySelection->selectedIndex) {
             graphics_set_color(0xFFFFFFFF, 0x0);
         } else if (game.trophies[i].isCollected == 1) {
             graphics_set_color(graphics_make_color(0, 255, 0, 255), 0x0);
         } else {
             graphics_set_color(graphics_make_color(0, 0, 255, 255), 0x0);
         }
-        draw_trophy(x, ((30 * (i - startIndex)) + y), disp, game.trophies[i]);
+        draw_trophy(x, ((30 * (i - trophySelection->startIndex)) + y), disp, game.trophies[i]);
     }
 
     // Check controller input
@@ -192,15 +251,9 @@ void render_screen(display_context_t disp, Game game) {
     struct controller_data ckeys = get_keys_down();
 
     if (ckeys.c[0].down) {
-        selectedTrophy++;
+        move_down(trophySelection);
     } else if (ckeys.c[0].up) {
-        selectedTrophy--;
-    }
-
-    if (selectedTrophy == -1) {
-        selectedTrophy = game.trophyCount - 1;
-    } else if (selectedTrophy == game.trophyCount) {
-        selectedTrophy = 0;
+        move_up(trophySelection);
     }
 
     if (ckeys.c[0].B) {
@@ -360,15 +413,10 @@ void load_sprite_data() {
     gold = malloc(dfs_size(fp));
     dfs_read(gold, 1, dfs_size(fp), fp);
     dfs_close(fp);
-
-    fp = dfs_open("/trophy_platinum.sprite");
-    platinum = malloc(dfs_size(fp));
-    dfs_read(platinum, 1, dfs_size(fp), fp);
-    dfs_close(fp);
 }
 
 int main(void) {
-    display_init(RESOLUTION_320x240, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
+    display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
     dfs_init(DFS_DEFAULT_LOCATION);
 
     console_init();
@@ -410,6 +458,10 @@ int main(void) {
         games[i].trophyCount = 0;
         loadGameData(&games[i], save_path, detected_games[i].supported_game.trophy_data_loader);
     }
+
+    // Selection for game selection menu
+    gameSelection = list_selection_new(4, detected_game_count);
+    trophySelection = list_selection_new(7, 1);
 
     debug_print_and_pause("Loaded game data\n");
 
