@@ -23,6 +23,7 @@ typedef enum {
 State state = GAME_SELECT;
 Game *selectedGame;
 
+sprite_t *silhouette;
 sprite_t *bronze;
 sprite_t *silver;
 sprite_t *gold;
@@ -32,6 +33,23 @@ ListSelection *trophySelection;
 
 const char *spoilerDescription = "Trophy contains spoilers";
 
+sprite_t* get_trophy_sprite(Trophy* trophy) {
+    if(trophy->isCollected) {
+        switch(trophy->level) {
+            case BRONZE:
+                return bronze;
+            case SILVER:
+                return silver;
+            case GOLD:
+                return gold;
+            default:
+                return silhouette;
+        }
+    } else {
+        return silhouette;
+    }
+}
+
 void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
     char description[120];
     if (trophy.containsSpoilers) {
@@ -39,16 +57,19 @@ void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
     } else {
         strcpy(description, trophy.description);
     }
-    graphics_draw_text(disp, x, y, trophy.title);
-    graphics_draw_text(disp, x, y + 10, description);
+    graphics_draw_bordered_box(disp, x, y, 620, 30, graphics_make_color(14, 128, 17, 255),
+                               graphics_make_color(255, 0, 0, 255), 2);
+    graphics_draw_sprite_trans(disp, x + 10, y + 6, get_trophy_sprite(&trophy));
+    graphics_draw_text(disp, x + 32, y + 6, trophy.title);
+    graphics_draw_text(disp, x + 32, y + 16, description);
 
     if (trophy.type == COUNTER) {
         char buffer[100];
         sprintf(buffer, "%d / %d", trophy.currentCount, trophy.targetCount);
 
         int percentageCompleted = ((float) trophy.currentCount / trophy.targetCount * 100.0f);
-        graphics_draw_text(disp, x + 400, y, buffer);
-        graphics_draw_progressbar(disp, x + 400, y + 10, 100, 10, graphics_make_color(255, 255, 255, 255),
+        graphics_draw_text(disp, x + 500, y + 6, buffer);
+        graphics_draw_progressbar(disp, x + 500, y + 16, 70, 5, graphics_make_color(255, 255, 255, 255),
                                   graphics_make_color(255, 0, 0, 255), percentageCompleted);
     }
 }
@@ -104,9 +125,9 @@ void draw_game_tile(display_context_t disp, int x, int y, Game game) {
                               graphics_make_color(255, 0, 0, 255), percentageCompleted);
 
     // Trophy counts
-    draw_trophy_counter(disp, x + 500, y + 6, bronzeCount, bronze);
-    draw_trophy_counter(disp, x + 530, y + 6, silverCount, silver);
-    draw_trophy_counter(disp, x + 560, y + 6, goldCount, gold);
+    draw_trophy_counter(disp, 500, y + 6, bronzeCount, bronze);
+    draw_trophy_counter(disp, 540, y + 6, silverCount, silver);
+    draw_trophy_counter(disp, 580, y + 6, goldCount, gold);
 }
 
 void on_game_selected(Game *game) {
@@ -339,7 +360,12 @@ char *get_extension_for_save_type(SaveType saveType) {
 }
 
 void load_sprite_data() {
-    int fp = dfs_open("/trophy_bronze.sprite");
+    int fp = dfs_open("/trophy_silhouette.sprite");
+    silhouette = malloc(dfs_size(fp));
+    dfs_read(silhouette, 1, dfs_size(fp), fp);
+    dfs_close(fp);
+
+    fp = dfs_open("/trophy_bronze.sprite");
     bronze = malloc(dfs_size(fp));
     dfs_read(bronze, 1, dfs_size(fp), fp);
     dfs_close(fp);
