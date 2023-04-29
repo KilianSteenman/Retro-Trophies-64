@@ -8,6 +8,7 @@
 #include "trophy.h"
 #include "debug.h"
 #include "graphics_ext.h"
+#include "list_selection.h"
 #include "games/1080_snowboarding.h"
 #include "games/super_mario_64.h"
 #include "games/super_smash_bros.h"
@@ -25,15 +26,6 @@ Game *selectedGame;
 sprite_t *bronze;
 sprite_t *silver;
 sprite_t *gold;
-
-typedef struct {
-    int startIndex;
-    int selectedIndex;
-    int endIndex;
-
-    int itemCount;
-    int maxIndex;
-} ListSelection;
 
 ListSelection *gameSelection;
 ListSelection *trophySelection;
@@ -132,61 +124,6 @@ void on_game_selected(Game *game) {
     trophySelection->maxIndex = game->trophyCount;
     if(trophySelection->maxIndex <= trophySelection->itemCount) {
         trophySelection->endIndex = trophySelection->maxIndex;
-    }
-}
-
-ListSelection *list_selection_new(int itemCount, int maxIndex) {
-    ListSelection *ls = malloc(sizeof(ListSelection));
-    ls->itemCount = itemCount;
-    ls->maxIndex = maxIndex;
-
-    ls->selectedIndex = 0;
-    ls->startIndex = 0;
-    ls->endIndex = itemCount;
-    return ls;
-}
-
-void move_up(ListSelection *ls) {
-    ls->selectedIndex--;
-    if (ls->selectedIndex < 0) {
-        ls->selectedIndex = ls->maxIndex - 1;
-        ls->endIndex = ls->maxIndex;
-        ls->startIndex = ls->maxIndex - ls->itemCount;
-
-        // Make sure startIndex is within bounds
-        if (ls->startIndex < 0) {
-            ls->startIndex = 0;
-        }
-    }
-
-    if (ls->selectedIndex < ls->startIndex) {
-        ls->startIndex = ls->selectedIndex;
-        ls->endIndex = ls->startIndex + ls->itemCount;
-    }
-
-    // Don't exceed the bottom of the list
-    if (ls->endIndex > ls->maxIndex) {
-        ls->endIndex = ls->maxIndex;
-    }
-}
-
-void move_down(ListSelection *ls) {
-    ls->selectedIndex++;
-    if (ls->selectedIndex >= ls->maxIndex) {
-        ls->selectedIndex = 0;
-        ls->startIndex = 0;
-        ls->endIndex = ls->itemCount;
-    }
-
-    // Start moving down the list when we reached the bottom of the screen
-    if ((ls->selectedIndex - ls->startIndex) >= ls->itemCount) {
-        ls->startIndex = ls->selectedIndex - ls->itemCount + 1;
-        ls->endIndex = ls->startIndex + ls->itemCount;
-    }
-
-    // Don't exceed the bottom of the list
-    if (ls->endIndex > ls->maxIndex) {
-        ls->endIndex = ls->maxIndex;
     }
 }
 
