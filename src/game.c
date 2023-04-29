@@ -49,6 +49,7 @@ void add_bool_trophy(
     trophy->level = level;
     trophy->type = BOOL;
     trophy->isCollected = isCollected;
+    trophy->containsSpoilers = false;
 }
 
 void add_counter_trophy(
@@ -73,6 +74,7 @@ void add_counter_trophy(
     trophy->targetCount = targetCount;
     trophy->currentCount = currentCount;
     trophy->isCollected = currentCount == targetCount;
+    trophy->containsSpoilers = false;
 }
 
 void add_counter_trophy_spoiler(
