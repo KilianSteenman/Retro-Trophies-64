@@ -17,3 +17,10 @@ void graphics_draw_progressbar(display_context_t disp, int x, int y, int width, 
     graphics_draw_box(disp, x, y, width, height, bgColor);
     graphics_draw_box(disp, x, y, width * ((float) percentageCompleted / 100.0f), height, fillColor);
 }
+
+void graphics_draw_bordered_box(display_context_t disp, int x, int y, int width, int height, int backgroundColor,
+                                int borderColor, int borderThickness) {
+    graphics_draw_box(disp, x, y, width, height, borderColor);
+    graphics_draw_box(disp, x + borderThickness, y + borderThickness, width - (borderThickness * 2),
+                      height - (borderThickness * 2), backgroundColor);
+}

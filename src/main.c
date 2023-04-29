@@ -85,13 +85,6 @@ void draw_trophy_counter(display_context_t disp, int x, int y, int count, sprite
     graphics_draw_sprite_trans(disp, x, y, sprite);
 }
 
-void graphics_draw_bordered_box(display_context_t disp, int x, int y, int width, int height, int backgroundColor,
-                                int borderColor, int borderThickness) {
-    graphics_draw_box(disp, x, y, width, height, borderColor);
-    graphics_draw_box(disp, x + borderThickness, y + borderThickness, width - (borderThickness * 2),
-                      height - (borderThickness * 2), backgroundColor);
-}
-
 void draw_game_tile(display_context_t disp, int x, int y, Game game) {
     graphics_draw_bordered_box(disp, x, y, 620, 40, graphics_make_color(14, 128, 17, 255),
                                graphics_make_color(255, 0, 0, 255), 2);
@@ -122,7 +115,7 @@ void on_game_selected(Game *game) {
 
     trophySelection->selectedIndex = 0;
     trophySelection->maxIndex = game->trophyCount;
-    if(trophySelection->maxIndex <= trophySelection->itemCount) {
+    if (trophySelection->maxIndex <= trophySelection->itemCount) {
         trophySelection->endIndex = trophySelection->maxIndex;
     }
 }
@@ -166,22 +159,7 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
 }
 
 void render_screen(display_context_t disp, Game game) {
-    /* Set the text output color */
-    graphics_set_color(0xFFFFFFFF, 0x0);
-
-    int x = 10;
-    int y = 10;
-
-    for (int i = trophySelection->startIndex; i < trophySelection->endIndex; i++) {
-        if (i == trophySelection->selectedIndex) {
-            graphics_set_color(0xFFFFFFFF, 0x0);
-        } else if (game.trophies[i].isCollected == 1) {
-            graphics_set_color(graphics_make_color(0, 255, 0, 255), 0x0);
-        } else {
-            graphics_set_color(graphics_make_color(0, 0, 255, 255), 0x0);
-        }
-        draw_trophy(x, ((30 * (i - trophySelection->startIndex)) + y), disp, game.trophies[i]);
-    }
+    // Update
 
     // Check controller input
     controller_scan();
@@ -195,6 +173,27 @@ void render_screen(display_context_t disp, Game game) {
 
     if (ckeys.c[0].B) {
         state = GAME_SELECT;
+    }
+
+    // Render
+
+    /* Set the text output color */
+    graphics_set_color(0xFFFFFFFF, 0x0);
+
+    graphics_draw_text(disp, 10, 10, game.title);
+
+    int x = 10;
+    int y = 30;
+
+    for (int i = trophySelection->startIndex; i < trophySelection->endIndex; i++) {
+        if (i == trophySelection->selectedIndex) {
+            graphics_set_color(0xFFFFFFFF, 0x0);
+        } else if (game.trophies[i].isCollected == 1) {
+            graphics_set_color(graphics_make_color(0, 255, 0, 255), 0x0);
+        } else {
+            graphics_set_color(graphics_make_color(0, 0, 255, 255), 0x0);
+        }
+        draw_trophy(x, ((30 * (i - trophySelection->startIndex)) + y), disp, game.trophies[i]);
     }
 }
 
