@@ -114,6 +114,8 @@ void on_game_selected(Game *game) {
     state = TROPHY_OVERVIEW;
 
     trophySelection->selectedIndex = 0;
+    trophySelection->startIndex = 0;
+    trophySelection->endIndex = trophySelection->itemCount;
     trophySelection->maxIndex = game->trophyCount;
     if (trophySelection->maxIndex <= trophySelection->itemCount) {
         trophySelection->endIndex = trophySelection->maxIndex;
@@ -137,15 +139,17 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
 
     // Render
 
+    graphics_draw_text(disp, 10, 10, "N64 Trophies");
+
     // draw totals
     int bronzeCount = 0, silverCount = 0, goldCount = 0, completedCount = 0;
     get_trophy_totals(games, gameCount, &bronzeCount, &silverCount, &goldCount, &completedCount);
     graphics_set_color(0xFF0000FF, 0x0);
-    draw_trophy_counter(disp, 20, 10, bronzeCount, bronze);
-    draw_trophy_counter(disp, 60, 10, silverCount, silver);
-    draw_trophy_counter(disp, 100, 10, goldCount, gold);
+    draw_trophy_counter(disp, 500, 10, bronzeCount, bronze);
+    draw_trophy_counter(disp, 540, 10, silverCount, silver);
+    draw_trophy_counter(disp, 580, 10, goldCount, gold);
 
-    for (int i = gameSelection->startIndex; i < gameSelection->endIndex; i++) { // TODO: Not hardcode this
+    for (int i = gameSelection->startIndex; i < gameSelection->endIndex; i++) {
 
         /* Set the text output color */
         if (i == gameSelection->selectedIndex) {
@@ -158,7 +162,7 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
     }
 }
 
-void render_screen(display_context_t disp, Game game) {
+void render_trophy_screen(display_context_t disp, Game game) {
     // Update
 
     // Check controller input
@@ -412,7 +416,7 @@ int main(void) {
         if (state == GAME_SELECT) {
             render_game_select_screen(disp, games, detected_game_count);
         } else if (state == TROPHY_OVERVIEW) {
-            render_screen(disp, *selectedGame);
+            render_trophy_screen(disp, *selectedGame);
         }
 
         /* Force backbuffer flip */
