@@ -159,7 +159,7 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
     }
 
     // Render
-
+    graphics_set_color(0xFFFFFFFF, 0x0);
     graphics_draw_text(disp, 10, 10, "N64 Trophies");
 
     // draw totals
