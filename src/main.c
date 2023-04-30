@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "graphics_ext.h"
 #include "list_selection.h"
+#include "ui.h"
 #include "games/1080_snowboarding.h"
 #include "games/super_mario_64.h"
 #include "games/super_smash_bros.h"
@@ -33,9 +34,9 @@ ListSelection *trophySelection;
 
 const char *spoilerDescription = "Trophy contains spoilers";
 
-sprite_t* get_trophy_sprite(Trophy* trophy) {
-    if(trophy->isCollected) {
-        switch(trophy->level) {
+sprite_t *get_trophy_sprite(Trophy *trophy) {
+    if (trophy->isCollected) {
+        switch (trophy->level) {
             case BRONZE:
                 return bronze;
             case SILVER:
@@ -50,15 +51,22 @@ sprite_t* get_trophy_sprite(Trophy* trophy) {
     }
 }
 
-void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
+void draw_trophy(int x, int y, display_context_t disp, Trophy trophy, bool is_selected) {
     char description[120];
     if (trophy.containsSpoilers) {
         strcpy(description, spoilerDescription);
     } else {
         strcpy(description, trophy.description);
     }
-    graphics_draw_bordered_box(disp, x, y, 620, 30, graphics_make_color(14, 128, 17, 255),
-                               graphics_make_color(255, 0, 0, 255), 2);
+
+    uint32_t tile_background_color = TILE_DEFAULT_BACKGROUND_COLOR;
+    uint32_t tile_border_color = TILE_DEFAULT_BORDER_COLOR;
+    if (is_selected) {
+        tile_background_color = TILE_SELECTED_BACKGROUND_COLOR;
+        tile_border_color = TILE_SELECTED_BORDER_COLOR;
+    }
+
+    graphics_draw_bordered_box(disp, x, y, 620, 30, tile_background_color, tile_border_color, 2);
     graphics_draw_sprite_trans(disp, x + 10, y + 6, get_trophy_sprite(&trophy));
     graphics_draw_text(disp, x + 32, y + 6, trophy.title);
     graphics_draw_text(disp, x + 32, y + 16, description);
@@ -69,8 +77,8 @@ void draw_trophy(int x, int y, display_context_t disp, Trophy trophy) {
 
         int percentageCompleted = ((float) trophy.currentCount / trophy.targetCount * 100.0f);
         graphics_draw_text(disp, x + 500, y + 6, buffer);
-        graphics_draw_progressbar(disp, x + 500, y + 16, 70, 5, graphics_make_color(255, 255, 255, 255),
-                                  graphics_make_color(255, 0, 0, 255), percentageCompleted);
+        graphics_draw_progressbar(disp, x + 500, y + 16, 70, 5, PROGRESSBAR_BACKGROUND_COLOR,
+                                  PROGRESSBAR_FOREGROUND_COLOR, percentageCompleted);
     }
 }
 
@@ -106,10 +114,18 @@ void draw_trophy_counter(display_context_t disp, int x, int y, int count, sprite
     graphics_draw_sprite_trans(disp, x, y, sprite);
 }
 
-void draw_game_tile(display_context_t disp, int x, int y, Game game) {
-    graphics_draw_bordered_box(disp, x, y, 620, 40, graphics_make_color(14, 128, 17, 255),
-                               graphics_make_color(255, 0, 0, 255), 2);
-    graphics_draw_text(disp, x + 5, y + 5, game.title);
+void draw_game_tile(display_context_t disp, int x, int y, Game game, bool is_selected) {
+    uint32_t tile_background_color = TILE_DEFAULT_BACKGROUND_COLOR;
+    uint32_t tile_border_color = TILE_DEFAULT_BORDER_COLOR;
+    uint32_t tile_text_color = TILE_DEFAULT_TEXT_COLOR;
+    if (is_selected) {
+        tile_background_color = TILE_SELECTED_BACKGROUND_COLOR;
+        tile_border_color = TILE_SELECTED_BORDER_COLOR;
+        tile_text_color = TILE_SELECTED_TEXT_COLOR;
+    }
+    graphics_set_color(tile_text_color, 0x0);
+    graphics_draw_bordered_box(disp, x, y, 620, 40, tile_background_color, tile_border_color, 2);
+    graphics_draw_text(disp, x + 15, y + 5, game.title);
 
     int bronzeCount = 0;
     int silverCount = 0;
@@ -159,27 +175,20 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
     }
 
     // Render
-    graphics_set_color(0xFFFFFFFF, 0x0);
-    graphics_draw_text(disp, 10, 10, "N64 Trophies");
+    graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
+    graphics_draw_text(disp, 20, 15, "N64 Trophies");
 
     // draw totals
     int bronzeCount = 0, silverCount = 0, goldCount = 0, completedCount = 0;
     get_trophy_totals(games, gameCount, &bronzeCount, &silverCount, &goldCount, &completedCount);
-    graphics_set_color(0xFF0000FF, 0x0);
+    graphics_set_color(TOTALS_COLOR, 0x0);
     draw_trophy_counter(disp, 500, 10, bronzeCount, bronze);
     draw_trophy_counter(disp, 540, 10, silverCount, silver);
     draw_trophy_counter(disp, 580, 10, goldCount, gold);
 
     for (int i = gameSelection->startIndex; i < gameSelection->endIndex; i++) {
-
-        /* Set the text output color */
-        if (i == gameSelection->selectedIndex) {
-            graphics_set_color(0xFFFFFFFF, 0x0);
-        } else {
-            graphics_set_color(0xFF0000FF, 0x0);
-        }
-
-        draw_game_tile(disp, 10, (i - gameSelection->startIndex) * 40 + 40, games[i]);
+        bool is_selected = i == gameSelection->selectedIndex;
+        draw_game_tile(disp, 10, (i - gameSelection->startIndex) * 40 + 40, games[i], is_selected);
     }
 }
 
@@ -204,21 +213,21 @@ void render_trophy_screen(display_context_t disp, Game game) {
 
     /* Set the text output color */
     graphics_set_color(0xFFFFFFFF, 0x0);
-
     graphics_draw_text(disp, 10, 10, game.title);
 
     int x = 10;
     int y = 30;
 
     for (int i = trophySelection->startIndex; i < trophySelection->endIndex; i++) {
-        if (i == trophySelection->selectedIndex) {
+        bool is_selected = i == trophySelection->selectedIndex;
+        if (is_selected) {
             graphics_set_color(0xFFFFFFFF, 0x0);
         } else if (game.trophies[i].isCollected == 1) {
             graphics_set_color(graphics_make_color(0, 255, 0, 255), 0x0);
         } else {
             graphics_set_color(graphics_make_color(0, 0, 255, 255), 0x0);
         }
-        draw_trophy(x, ((30 * (i - trophySelection->startIndex)) + y), disp, game.trophies[i]);
+        draw_trophy(x, ((30 * (i - trophySelection->startIndex)) + y), disp, game.trophies[i], is_selected);
     }
 }
 
@@ -382,7 +391,7 @@ void load_sprite_data() {
 }
 
 int main(void) {
-    display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
+    display_init(RESOLUTION_640x480, DEPTH_32_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
     dfs_init(DFS_DEFAULT_LOCATION);
 
     console_init();
@@ -392,6 +401,7 @@ int main(void) {
     console_set_debug(true);
 
     load_sprite_data();
+    init_colors();
 
     // TODO: Make this dynamic
     SupportedGame supported_games[5];
@@ -427,7 +437,7 @@ int main(void) {
 
     // Selection for game selection menu
     gameSelection = list_selection_new(4, detected_game_count);
-    trophySelection = list_selection_new(7, 1);
+    trophySelection = list_selection_new(7, 0);
 
     debug_print_and_pause("Loaded game data\n");
 
@@ -436,7 +446,7 @@ int main(void) {
         display_context_t disp = display_lock();
 
         /* Fill the screen */
-        graphics_fill_screen(disp, 0x0);
+        graphics_fill_screen(disp, SCREEN_BACKGROUND_COLOR);
 
         /* Render the screen */
         if (state == GAME_SELECT) {
