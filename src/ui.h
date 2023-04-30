@@ -5,6 +5,8 @@
 #ifndef N64_TROPHIES_UI_H
 #define N64_TROPHIES_UI_H
 
+// Colors
+
 uint32_t SCREEN_BACKGROUND_COLOR;
 uint32_t SCREEN_TITLE_COLOR;
 uint32_t TOTALS_COLOR;
@@ -19,10 +21,19 @@ uint32_t TILE_SELECTED_TEXT_COLOR;
 uint32_t PROGRESSBAR_FOREGROUND_COLOR;
 uint32_t PROGRESSBAR_BACKGROUND_COLOR;
 
+// Offsets
+int OFFSET_TROPHY_BRONZE_X = 480;
+int OFFSET_TROPHY_SILVER_X = 530;
+int OFFSET_TROPHY_GOLD_X = 580;
+
+int HEADER_HEIGHT = 35;
+
+int BORDER_THICKNESS = 1;
+
 void init_colors() {
     SCREEN_BACKGROUND_COLOR = graphics_make_color(197, 194, 196, 255);
     SCREEN_TITLE_COLOR = graphics_make_color(101, 101, 101, 255);
-    TOTALS_COLOR = graphics_make_color(255, 0, 0, 255);
+    TOTALS_COLOR = graphics_make_color(101, 101, 101, 255);
 
     TILE_DEFAULT_BACKGROUND_COLOR = graphics_make_color(197, 194, 196, 255);
     TILE_SELECTED_BACKGROUND_COLOR = graphics_make_color(14, 0, 17, 255);
