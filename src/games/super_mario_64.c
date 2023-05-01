@@ -54,19 +54,19 @@ int get_star_count_for_map(char *save_data, Map map) {
 
 int get_star_count(char *save_data) {
     int star_count = 0;
-    star_count += get_star_count_for_address(save_data, 0x8);
-    for (int i = BOBOMB_BATTLEFIELD; i <= RAINBOW_RIDE; i++) {
-        star_count += get_star_count_for_map(save_data, i);
-    }
-    star_count += get_star_count_for_address(save_data, 0x1B);
-    star_count += get_star_count_for_address(save_data, 0x1C);
-    star_count += get_star_count_for_address(save_data, 0x1D);
-    star_count += get_star_count_for_address(save_data, 0x1E);
-    star_count += get_star_count_for_address(save_data, 0x1F);
-    star_count += get_star_count_for_address(save_data, 0x20);
-    star_count += get_star_count_for_address(save_data, 0x21);
-    star_count += get_star_count_for_address(save_data, 0x22);
-    star_count += get_star_count_for_address(save_data, 0x23);
+//    star_count += get_star_count_for_address(save_data, 0x8);
+//    for (int i = BOBOMB_BATTLEFIELD; i <= RAINBOW_RIDE; i++) {
+//        star_count += get_star_count_for_map(save_data, i);
+//    }
+//    star_count += get_star_count_for_address(save_data, 0x1B);
+//    star_count += get_star_count_for_address(save_data, 0x1C);
+//    star_count += get_star_count_for_address(save_data, 0x1D);
+//    star_count += get_star_count_for_address(save_data, 0x1E);
+//    star_count += get_star_count_for_address(save_data, 0x1F);
+//    star_count += get_star_count_for_address(save_data, 0x20);
+//    star_count += get_star_count_for_address(save_data, 0x21);
+//    star_count += get_star_count_for_address(save_data, 0x22);
+//    star_count += get_star_count_for_address(save_data, 0x23);
     return star_count;
 }
 

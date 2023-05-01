@@ -17,6 +17,7 @@
 #include "games/zelda_oot.h"
 
 typedef enum {
+    LOADING,
     GAME_SELECT,
     TROPHY_OVERVIEW
 } State;
@@ -235,7 +236,8 @@ void render_trophy_screen(display_context_t disp, Game game) {
     // Trophy list
     for (int i = trophySelection->startIndex; i < trophySelection->endIndex; i++) {
         bool is_selected = i == trophySelection->selectedIndex;
-        draw_trophy(10, ((30 * (i - trophySelection->startIndex)) + HEADER_HEIGHT), disp, game.trophies[i], is_selected);
+        draw_trophy(10, ((30 * (i - trophySelection->startIndex)) + HEADER_HEIGHT), disp, game.trophies[i],
+                    is_selected);
     }
 }
 
@@ -411,6 +413,8 @@ int main(void) {
     load_sprite_data();
     init_colors();
 
+    debug_print_and_pause("Welcome\n");
+
     // TODO: Make this dynamic
     SupportedGame supported_games[5];
     supported_games[0] = (SupportedGame) {.name = "1080 Snowboarding", .game_code = "TEA", .save_type = RAM, .trophy_data_loader = get_game_data_1080};
@@ -422,6 +426,8 @@ int main(void) {
     DetectedGame detected_games[50];
     int detected_game_count = 0;
     detect_games(supported_games, 5, detected_games, &detected_game_count);
+
+    printf("Detected games: %d\n", detected_game_count);
 
     debug_print_and_pause("Loading trophy data\n");
     // TODO: Make this dynamic

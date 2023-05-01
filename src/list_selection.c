@@ -13,7 +13,12 @@ ListSelection *list_selection_new(int itemCount, int maxIndex) {
 
     ls->selectedIndex = 0;
     ls->startIndex = 0;
-    ls->endIndex = itemCount;
+    if(maxIndex < itemCount) {
+        ls->endIndex = maxIndex;
+    } else {
+        ls->endIndex = itemCount;
+    }
+
     return ls;
 }
 

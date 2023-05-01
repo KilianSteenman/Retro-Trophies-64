@@ -8,14 +8,15 @@
 #include "trophy.h"
 #include "debug.h"
 
-void add_bool_trophy_spoiler(
+void add_bool_trophy_internal(
         Game *game,
         char *title,
         char *description,
         TrophyLevel level,
-        bool isCollected
+        bool isCollected,
+        bool containsSpoiler
 ) {
-//    printf("Adding boolean trophy at index %d\n", game->trophyCount);
+    printf("Adding boolean trophy at index %d - '%s'\n", game->trophyCount, title);
     if (game->trophyCount >= MAX_TROPHY_COUNT) {
         debug_print_number_and_stop("Unable to add trophy: reached max trophy count", game->trophyCount);
         return;
@@ -27,7 +28,17 @@ void add_bool_trophy_spoiler(
     trophy->level = level;
     trophy->type = BOOL;
     trophy->isCollected = isCollected;
-    trophy->containsSpoilers = true;
+    trophy->containsSpoilers = containsSpoiler;
+}
+
+void add_bool_trophy_spoiler(
+        Game *game,
+        char *title,
+        char *description,
+        TrophyLevel level,
+        bool isCollected
+) {
+    add_bool_trophy_internal(game, title, description, level, isCollected, true);
 }
 
 void add_bool_trophy(
@@ -37,7 +48,19 @@ void add_bool_trophy(
         TrophyLevel level,
         bool isCollected
 ) {
-//    printf("Adding boolean trophy at index %d\n", game->trophyCount);
+    add_bool_trophy_internal(game, title, description, level, isCollected, false);
+}
+
+void add_counter_trophy_internal(
+        Game *game,
+        char *title,
+        char *description,
+        TrophyLevel level,
+        int targetCount,
+        int currentCount,
+        bool containsSpoiler
+) {
+    printf("Adding counter trophy at index %d - '%s'\n", game->trophyCount, title);
     if (game->trophyCount >= MAX_TROPHY_COUNT) {
         debug_print_number_and_stop("Unable to add trophy: reached max trophy count", game->trophyCount);
         return;
@@ -47,9 +70,11 @@ void add_bool_trophy(
     strcpy(trophy->title, title);
     strcpy(trophy->description, description);
     trophy->level = level;
-    trophy->type = BOOL;
-    trophy->isCollected = isCollected;
-    trophy->containsSpoilers = false;
+    trophy->type = COUNTER;
+    trophy->targetCount = targetCount;
+    trophy->currentCount = currentCount;
+    trophy->isCollected = currentCount == targetCount;
+    trophy->containsSpoilers = containsSpoiler;
 }
 
 void add_counter_trophy(
@@ -60,21 +85,7 @@ void add_counter_trophy(
         int targetCount,
         int currentCount
 ) {
-//    printf("Adding counter trophy at index %d\n", game->trophyCount);
-    if (game->trophyCount >= MAX_TROPHY_COUNT) {
-        debug_print_number_and_stop("Unable to add trophy: reached max trophy count", game->trophyCount);
-        return;
-    }
-
-    Trophy *trophy = &game->trophies[game->trophyCount++];
-    strcpy(trophy->title, title);
-    strcpy(trophy->description, description);
-    trophy->level = level;
-    trophy->type = COUNTER;
-    trophy->targetCount = targetCount;
-    trophy->currentCount = currentCount;
-    trophy->isCollected = currentCount == targetCount;
-    trophy->containsSpoilers = false;
+    add_counter_trophy_internal(game, title, description, level, targetCount, currentCount, false);
 }
 
 void add_counter_trophy_spoiler(
@@ -85,21 +96,7 @@ void add_counter_trophy_spoiler(
         int targetCount,
         int currentCount
 ) {
-//    printf("Adding counter trophy at index %d\n", game->trophyCount);
-    if (game->trophyCount >= MAX_TROPHY_COUNT) {
-        debug_print_number_and_stop("Unable to add trophy: reached max trophy count", game->trophyCount);
-        return;
-    }
-
-    Trophy *trophy = &game->trophies[game->trophyCount++];
-    strcpy(trophy->title, title);
-    strcpy(trophy->description, description);
-    trophy->level = level;
-    trophy->type = COUNTER;
-    trophy->targetCount = targetCount;
-    trophy->currentCount = currentCount;
-    trophy->isCollected = currentCount == targetCount;
-    trophy->containsSpoilers = true;
+    add_counter_trophy_internal(game, title, description, level, targetCount, currentCount, true);
 }
 
 void getGameStatus(Game game, int *bronzeCount, int *silverCount, int *goldCount, int *percentageCompleted) {
