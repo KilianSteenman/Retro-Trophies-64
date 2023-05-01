@@ -3,7 +3,19 @@
 //
 
 #include <libdragon.h>
+#include <stdarg.h>
 #include <stdio.h>
+
+void debug_printf(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+#ifdef DEBUG
+    vprintf(format, args);
+#endif
+
+    va_end(args);
+}
 
 void debug_print_number_and_stop(char *message, int value) {
 #ifdef DEBUG

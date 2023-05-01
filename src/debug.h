@@ -7,6 +7,7 @@
 
 void debug_print_number_and_stop(char *message, int value);
 
+void debug_printf(const char * format, ... );
 void debug_print_and_pause(char *message);
 void debug_print_and_stop(char *message);
 

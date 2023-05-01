@@ -291,12 +291,12 @@ char *strip_extension(const char *filename) {
 
 void print_dir(char *dir, SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games,
                int *detected_game_count) {
-    printf("Supported games:\n");
+    debug_printf("Supported games:\n");
     for (int i = 0; i < supported_game_count; i++) {
-        printf("%s - %s\n", supported_games[i].game_code, supported_games[i].name);
+        debug_printf("%s - %s\n", supported_games[i].game_code, supported_games[i].name);
     }
 
-    printf("Detecting games:\n");
+    debug_printf("Detecting games:\n");
     int path_count = 0;
     GamePath paths[10];
 //    int counter = 0;
@@ -308,7 +308,7 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
             // Check if this is an N64 rom
             char *dot = strrchr(buf.d_name, '.');
             if (dot && !strcmp(dot, ".z64") && buf.d_name[0] != '.') {
-                printf("Z64 file detected %s\n", buf.d_name);
+                debug_printf("Z64 file detected %s\n", buf.d_name);
                 sprintf(paths[path_count].game_path, "%s%s", dir, buf.d_name);
                 strcpy(paths[path_count].file_name, strip_extension(buf.d_name));
                 path_count++;
@@ -317,13 +317,13 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
         ret = dir_findnext(dir, &buf);
     }
 
-    printf("Found %d games... Detecting game type\n", path_count);
+    debug_printf("Found %d games... Detecting game type\n", path_count);
     char game_id[3];
     for (int i = 0; i < path_count; i++) {
-        printf("Detecting game %s\n", paths[i].game_path);
+        debug_printf("Detecting game %s\n", paths[i].game_path);
         // Checks the 'unique' identifier for this rom
         FILE *game_rom = fopen(paths[i].game_path, "r");
-//        printf("Opened game %s\n", paths[i].game_path);
+//        debug_printf("Opened game %s\n", paths[i].game_path);
         if (game_rom == NULL) {
             debug_print_and_stop("Unable to open game rom");
             return;
@@ -337,7 +337,7 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
         bool is_supported = false;
         for (int sg = 0; sg < supported_game_count; sg++) {
             if (strncmp(game_id, supported_games[sg].game_code, 3) == 0) {
-                printf("Detected %s\n", supported_games[sg].name);
+                debug_printf("Detected %s\n", supported_games[sg].name);
                 is_supported = true;
 
                 strcpy(detected_games[*detected_game_count].filename, paths[i].file_name);
@@ -347,10 +347,10 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
         }
 
         if (is_supported) {
-            printf("Unknown game detected '%.3s' at %s \n", game_id, paths[i].game_path);
+            debug_printf("Unknown game detected '%.3s' at %s \n", game_id, paths[i].game_path);
         }
     }
-    printf("Finished game detection\n");
+    debug_printf("Finished game detection\n");
 }
 
 void detect_games(SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games,
@@ -416,8 +416,6 @@ int main(void) {
     load_sprite_data();
     init_colors();
 
-    debug_print_and_pause("Welcome\n");
-
     // TODO: Make this dynamic
     SupportedGame supported_games[5];
     supported_games[0] = (SupportedGame) {.name = "1080 Snowboarding", .game_code = "TEA", .save_type = RAM, .trophy_data_loader = get_game_data_1080};
@@ -430,22 +428,22 @@ int main(void) {
     int detected_game_count = 0;
     detect_games(supported_games, 5, detected_games, &detected_game_count);
 
-    printf("Detected games: %d\n", detected_game_count);
+    debug_printf("Detected games: %d\n", detected_game_count);
 
     debug_print_and_pause("Loading trophy data\n");
     // TODO: Make this dynamic
     Game games[6];
     for (int i = 0; i < detected_game_count; i++) {
-        printf("Loading trophy data for %s\n", detected_games[i].filename);
+        debug_printf("Loading trophy data for %s\n", detected_games[i].filename);
         char save_path[512];
 #ifdef N64_HARDWARE
-        sprintf(save_path, "sd:/ED64/gamedata/%s.%s", detected_games[i].filename,
+        debug_printf(save_path, "sd:/ED64/gamedata/%s.%s", detected_games[i].filename,
                 get_extension_for_save_type(detected_games[i].supported_game.save_type));
 #else
-        sprintf(save_path, "rom://ED64/gamedata/%s.%s", detected_games[i].filename,
+        debug_printf(save_path, "rom://ED64/gamedata/%s.%s", detected_games[i].filename,
                 get_extension_for_save_type(detected_games[i].supported_game.save_type));
 #endif
-        printf("Loading game data '%s'\n", save_path);
+        debug_printf("Loading game data '%s'\n", save_path);
 
         strcpy(games[i].title, detected_games[i].supported_game.name);
         games[i].trophyCount = 0;
