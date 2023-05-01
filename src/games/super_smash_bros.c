@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../debug.h"
 #include "../trophy.h"
 #include "../game.h"
 #include "../save_state_utils.h"
@@ -72,7 +73,7 @@ char get_vs_matches_played(char *save_data) {
 void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
     char save_data[32768];
     if (fread(&save_data, sizeof(save_data), 1, saveState)) {
-        printf("Read super smash bros save game into memory\n");
+        debug_printf("Read super smash bros save game into memory\n");
     }
 
     add_bool_trophy_spoiler(game, "It's a me", "Unlock Luigi", SILVER,

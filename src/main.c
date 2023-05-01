@@ -325,7 +325,7 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
         FILE *game_rom = fopen(paths[i].game_path, "r");
 //        debug_printf("Opened game %s\n", paths[i].game_path);
         if (game_rom == NULL) {
-            debug_print_and_stop("Unable to open game rom");
+            debug_printf_and_stop("Unable to open game rom");
             return;
         }
         // Game ID is at 60 (well 59 actually)
@@ -360,7 +360,7 @@ void detect_games(SupportedGame *supported_games, int supported_game_count, Dete
 #else
     if (dfs_init(DFS_DEFAULT_LOCATION) != DFS_ESUCCESS) {
 #endif
-        debug_print_and_stop("Error opening SD");
+        debug_printf_and_stop("Error opening SD");
     }
 
 #ifdef N64_HARDWARE
@@ -430,17 +430,17 @@ int main(void) {
 
     debug_printf("Detected games: %d\n", detected_game_count);
 
-    debug_print_and_pause("Loading trophy data\n");
+    debug_printf_and_pause("Loading trophy data\n");
     // TODO: Make this dynamic
     Game games[6];
     for (int i = 0; i < detected_game_count; i++) {
         debug_printf("Loading trophy data for %s\n", detected_games[i].filename);
         char save_path[512];
 #ifdef N64_HARDWARE
-        debug_printf(save_path, "sd:/ED64/gamedata/%s.%s", detected_games[i].filename,
+        sprintf(save_path, "sd:/ED64/gamedata/%s.%s", detected_games[i].filename,
                 get_extension_for_save_type(detected_games[i].supported_game.save_type));
 #else
-        debug_printf(save_path, "rom://ED64/gamedata/%s.%s", detected_games[i].filename,
+        sprintf(save_path, "rom://ED64/gamedata/%s.%s", detected_games[i].filename,
                 get_extension_for_save_type(detected_games[i].supported_game.save_type));
 #endif
         debug_printf("Loading game data '%s'\n", save_path);
@@ -454,7 +454,7 @@ int main(void) {
     gameSelection = list_selection_new(6, detected_game_count);
     trophySelection = list_selection_new(6, 0);
 
-    debug_print_and_pause("Loaded game data\n");
+    debug_printf_and_pause("Loaded game data\n");
 
     while (1) {
         /* Grab a render buffer */
