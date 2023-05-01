@@ -3,51 +3,42 @@
 //
 
 #include <libdragon.h>
+#include <stdarg.h>
 #include <stdio.h>
 
-void debug_print_number_and_stop(char *message, int value) {
-#ifdef DEBUG
-    char buffer[sizeof(message) + 11];
-    sprintf(buffer, "%s%d", message, value);
-    if (message != NULL) {
-        printf(buffer);
-    }
+void debug_printf(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
 
-    console_render();
-    while (1) {
-        controller_scan();
-        struct controller_data ckeys = get_keys_down();
-        if (ckeys.c[0].A) {
-            break;
-        }
-    }
+#ifdef DEBUG
+    vprintf(format, args);
 #endif
+
+    va_end(args);
 }
 
-void debug_print_and_pause(char *message) {
-#ifdef DEBUG
-    if (message != NULL) {
-        printf(message);
-    }
+void debug_printf_and_stop(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
 
-    console_render();
-    while (1) {
-        controller_scan();
-        struct controller_data ckeys = get_keys_down();
-        if (ckeys.c[0].A) {
-            break;
-        }
-    }
-#endif
-}
-
-void debug_print_and_stop(char *message) {
-#ifdef DEBUG
-    if (message != NULL) {
-        printf(message);
-    }
-
-    console_render();
     while (1) {}
+}
+
+void debug_printf_and_pause(const char *format, ...) {
+#ifdef DEBUG
+    va_list args;
+    va_start(args, format);
+    debug_printf(format, args);
+    va_end(args);
+
+    while (1) {
+        controller_scan();
+        struct controller_data ckeys = get_keys_down();
+        if (ckeys.c[0].A) {
+            break;
+        }
+    }
 #endif
 }

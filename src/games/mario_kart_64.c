@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../debug.h"
 #include "../trophy.h"
 #include "../game.h"
 #include "../save_state_utils.h"
@@ -40,7 +41,7 @@ int get_mirror_gold_count(char *save_data) {
 void get_game_data_mario_kart_64(Game *game, FILE *saveState) {
     char save_data[512];
     if (fread(&save_data, sizeof(save_data), 1, saveState)) {
-        printf("Read mario kart save game into memory\n");
+        debug_printf("Read mario kart save game into memory\n");
     }
 
     add_counter_trophy(game, "Slow but steady", "Beat all cups on 50CC", SILVER, 4,

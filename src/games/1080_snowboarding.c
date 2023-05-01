@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 
+#include "../debug.h"
 #include "../save_state_utils.h"
 #include "../game.h"
 
@@ -42,7 +43,7 @@ int record_time_count(char *save_data) {
 void get_game_data_1080(Game *game, FILE *saveState) {
     char save_data[32768];
     if (fread(&save_data, sizeof(save_data), 1, saveState)) {
-        printf("Read 1080 save game into memory\n");
+        debug_printf("Read 1080 save game into memory\n");
     }
 
     add_bool_trophy(game, "Into the cold", "Finish easy difficulty", BRONZE,

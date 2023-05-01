@@ -7,7 +7,8 @@
 
 void debug_print_number_and_stop(char *message, int value);
 
-void debug_print_and_pause(char *message);
-void debug_print_and_stop(char *message);
+void debug_printf(const char * format, ... );
+void debug_printf_and_pause(const char * format, ... );
+void debug_printf_and_stop(const char * format, ... );
 
 #endif //N64_ACHIEVEMENT_COINS_DEBUG_H

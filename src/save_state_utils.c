@@ -11,12 +11,12 @@ int raw_is_equal(char *save_data, int address, int requiredValue) {
 
 int raw_is_greater_or_equal(char *save_data, int address, int requiredValue) {
     int value = save_data[address];
-    printf("Compare %d >= %d\n", value, requiredValue);
-    return save_data[address] >= requiredValue;
+    debug_printf("Compare %d >= %d\n", value, requiredValue);
+    return value >= requiredValue;
 }
 
 int raw_is_flag_set(char *save_data, int address, char flag) {
-    printf("Flag %d = %d\n", save_data[address], flag);
+    debug_printf("Flag %d = %d\n", save_data[address], flag);
     return (save_data[address] & flag) == flag;
 }
 
