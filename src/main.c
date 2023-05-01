@@ -52,9 +52,9 @@ sprite_t *get_trophy_sprite(Trophy *trophy) {
     }
 }
 
-void draw_trophy(int x, int y, display_context_t disp, Trophy trophy, bool is_selected) {
+void draw_trophy(int x, int y, display_context_t disp, Trophy trophy, bool is_selected, bool show_spoiler) {
     char description[120];
-    if (trophy.containsSpoilers) {
+    if (trophy.containsSpoilers && !(is_selected && show_spoiler)) {
         strcpy(description, spoilerDescription);
     } else {
         strcpy(description, trophy.description);
@@ -216,6 +216,9 @@ void render_trophy_screen(display_context_t disp, Game game) {
         state = GAME_SELECT;
     }
 
+    struct controller_data ckeys_held = get_keys_held();
+    bool show_spoiler = ckeys_held.c[0].Z;
+
     int bronzeCount = 0;
     int silverCount = 0;
     int goldCount = 0;
@@ -237,7 +240,7 @@ void render_trophy_screen(display_context_t disp, Game game) {
     for (int i = trophySelection->startIndex; i < trophySelection->endIndex; i++) {
         bool is_selected = i == trophySelection->selectedIndex;
         draw_trophy(10, ((30 * (i - trophySelection->startIndex)) + HEADER_HEIGHT), disp, game.trophies[i],
-                    is_selected);
+                    is_selected, show_spoiler);
     }
 }
 
