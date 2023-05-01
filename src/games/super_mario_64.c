@@ -153,6 +153,6 @@ void get_game_data_mario64(Game *game, FILE *saveState) {
                     is_moat_drained(save_data));
     add_counter_trophy(game, "It's all about the money", "Collect all coin stars", GOLD,
                        15, get_coin_star_count(save_data));
-    add_counter_trophy(game, "Stargazer", "Collect all stars", GOLD,
+    add_counter_trophy(game, "Super Mario All Stars", "Collect all stars", GOLD,
                        120, get_star_count(save_data));
 }
