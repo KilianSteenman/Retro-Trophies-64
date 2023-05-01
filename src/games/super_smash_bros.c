@@ -70,12 +70,7 @@ char get_vs_matches_played(char *save_data) {
     return read_short(save_data, 0x5E0);
 }
 
-void get_game_data_super_smash_bros(Game *game, FILE *saveState) {
-    char save_data[32768];
-    if (fread(&save_data, sizeof(save_data), 1, saveState)) {
-        debug_printf("Read super smash bros save game into memory\n");
-    }
-
+void get_game_data_super_smash_bros(Game *game, char *save_data) {
     add_bool_trophy_spoiler(game, "It's a me", "Unlock Luigi", SILVER,
                     raw_is_flag_set(save_data, 0x457, 0b1));
     add_bool_trophy_spoiler(game, "I'll take on anybody, anytime", "Unlock Captain Falcon", SILVER,

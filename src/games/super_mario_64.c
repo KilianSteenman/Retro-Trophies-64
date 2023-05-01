@@ -99,12 +99,7 @@ char is_moat_drained(char *save_data) {
     return raw_is_flag_set(save_data, 0xA, 0b10);
 }
 
-void get_game_data_mario64(Game *game, FILE *saveState) {
-    char save_data[512];
-    if (fread(&save_data, sizeof(save_data), 1, saveState)) {
-        debug_printf("Read mario save game into memory\n");
-    }
-
+void get_game_data_mario64(Game *game, char *save_data) {
     add_bool_trophy(game, "Welcome to the third dimension", "Collect your first star", BRONZE,
                     raw_is_greater_or_equal(save_data, 0xC, 1));
     add_counter_trophy(game, "Bob-omb boom!", "Collect all stars on Bob-omb battlefield", SILVER,

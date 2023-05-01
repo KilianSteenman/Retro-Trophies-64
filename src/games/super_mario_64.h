@@ -10,6 +10,6 @@
 
 #include "../game.h"
 
-void get_game_data_mario64(Game *game, FILE *saveState);
+void get_game_data_mario64(Game *game, char *save_data);
 
 #endif // N64_ACHIEVEMENT_COINS_GAMES_SUPER_MARIO_64_H

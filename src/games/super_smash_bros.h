@@ -10,6 +10,6 @@
 
 #include "../game.h"
 
-void get_game_data_super_smash_bros(Game *game, FILE *saveState);
+void get_game_data_super_smash_bros(Game *game, char *save_data);
 
 #endif // N64_ACHIEVEMENT_COINS_GAMES_SUPER_SMASH_BROS_H

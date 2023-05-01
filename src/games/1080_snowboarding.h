@@ -10,6 +10,6 @@
 
 #include "../game.h"
 
-void get_game_data_1080(Game *game, FILE *saveState);
+void get_game_data_1080(Game *game, char *save_data);
 
 #endif

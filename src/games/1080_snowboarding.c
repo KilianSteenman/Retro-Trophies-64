@@ -40,12 +40,7 @@ int record_time_count(char *save_data) {
            is_record_broken(save_data, 0x15D, 9000 /* 1:30:00 */);
 }
 
-void get_game_data_1080(Game *game, FILE *saveState) {
-    char save_data[32768];
-    if (fread(&save_data, sizeof(save_data), 1, saveState)) {
-        debug_printf("Read 1080 save game into memory\n");
-    }
-
+void get_game_data_1080(Game *game, char *save_data) {
     add_bool_trophy(game, "Into the cold", "Finish easy difficulty", BRONZE,
                     raw_is_greater_or_equal(save_data, 0x1FA, 2));
     add_bool_trophy(game, "Powder Threat", "Finish medium difficulty", SILVER,

@@ -14,6 +14,7 @@ $(BUILD_DIR)/trophy.o \
 $(BUILD_DIR)/game.o \
 $(BUILD_DIR)/debug.o \
 $(BUILD_DIR)/save_state_utils.o \
+$(BUILD_DIR)/save_type.o \
 $(BUILD_DIR)/list_selection.o \
 $(BUILD_DIR)/games/1080_snowboarding.o \
 $(BUILD_DIR)/games/super_mario_64.o \

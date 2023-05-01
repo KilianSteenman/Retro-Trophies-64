@@ -7,6 +7,6 @@
 
 #include "../game.h"
 
-void get_trophy_data_zelda_oot(Game *game, FILE *saveState);
+void get_trophy_data_zelda_oot(Game *game, char *save_data);
 
 #endif //N64_TROPHIES_ZELDA_OOT_H

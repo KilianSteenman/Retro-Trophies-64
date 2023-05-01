@@ -10,6 +10,6 @@
 
 #include "../game.h"
 
-void get_game_data_mario_kart_64(Game *game, FILE *saveState);
+void get_game_data_mario_kart_64(Game *game, char *save_data);
 
 #endif // N64_ACHIEVEMENT_COINS_GAMES_MARIO_KART_64_H

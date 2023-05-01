@@ -38,12 +38,7 @@ int get_mirror_gold_count(char *save_data) {
            ((save_data[0x183] & 0b11000000) == 0b11000000);
 }
 
-void get_game_data_mario_kart_64(Game *game, FILE *saveState) {
-    char save_data[512];
-    if (fread(&save_data, sizeof(save_data), 1, saveState)) {
-        debug_printf("Read mario kart save game into memory\n");
-    }
-
+void get_game_data_mario_kart_64(Game *game, char *save_data) {
     add_counter_trophy(game, "Slow but steady", "Beat all cups on 50CC", SILVER, 4,
                        get_50_cc_gold_count(save_data));
     add_counter_trophy(game, "Oh, It's On", "Beat all cups on 100CC", SILVER, 4,

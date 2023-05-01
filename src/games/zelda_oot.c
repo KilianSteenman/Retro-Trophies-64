@@ -15,12 +15,7 @@ int get_skulltula_count(char *save_data) {
     return 0;
 }
 
-void get_trophy_data_zelda_oot(Game *game, FILE *saveState) {
-    char save_data[32768];
-    if (fread(&save_data, sizeof(save_data), 1, saveState)) {
-        debug_printf("Read Zelda OOT save game into memory\n");
-    }
-
+void get_trophy_data_zelda_oot(Game *game, char *save_data) {
     add_bool_trophy(game, "A wimp is still a wimp", "Get access to the Great Deku Tree", BRONZE,
                     raw_is_flag_set(save_data, 0xEF5, 0b00010000));
     add_bool_trophy(game, "Good...bye...", "Obtain the Kokiri Emerald", SILVER,

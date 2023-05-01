@@ -10,6 +10,7 @@
 #include "graphics_ext.h"
 #include "list_selection.h"
 #include "ui.h"
+#include "save_type.h"
 #include "games/1080_snowboarding.h"
 #include "games/super_mario_64.h"
 #include "games/super_smash_bros.h"
@@ -244,15 +245,24 @@ void render_trophy_screen(display_context_t disp, Game game) {
     }
 }
 
-void loadGameData(Game *game, char *saveGame, void (*f)(Game *, FILE *)) {
+void loadGameData(Game *game, char *saveGame, SaveType saveType, void (*f)(Game *, char *)) {
     FILE *saveState = fopen(saveGame, "r");
     if (saveState == NULL) {
-        printf("Save data unavailable for %s\n", game->title);
+        debug_printf("Save data unavailable for %s\n", game->title);
         return;
     }
 
-    (*f)(game, saveState);
+    // Read save file
+    char *save_data = malloc(get_size_of_save_data(saveType));
+    if (fread(save_data, get_size_of_save_data(saveType), 1, saveState)) {
+        debug_printf("Read %s save game into memory size: %d\n", game->title, get_size_of_save_data(saveType));
+    }
 
+    // Add and parse trophies
+    (*f)(game, save_data);
+
+    // Release save data and file
+    free(save_data);
     fclose(saveState);
 }
 
@@ -261,12 +271,7 @@ typedef struct {
     char file_name[100];
 } GamePath;
 
-typedef enum {
-    RAM,
-    EEP
-} SaveType;
-
-typedef void (*TrophyDataLoader)(Game *, FILE *);
+typedef void (*TrophyDataLoader)(Game *, char *);
 
 typedef struct {
     char name[50];
@@ -370,17 +375,6 @@ void detect_games(SupportedGame *supported_games, int supported_game_count, Dete
 #endif
 }
 
-char *get_extension_for_save_type(SaveType saveType) {
-    switch (saveType) {
-        case RAM:
-            return "srm";
-        case EEP:
-            return "eep";
-        default:
-            return "ram";
-    }
-}
-
 void load_sprite_data() {
     int fp = dfs_open("/trophy_silhouette.sprite");
     silhouette = malloc(dfs_size(fp));
@@ -447,7 +441,8 @@ int main(void) {
 
         strcpy(games[i].title, detected_games[i].supported_game.name);
         games[i].trophyCount = 0;
-        loadGameData(&games[i], save_path, detected_games[i].supported_game.trophy_data_loader);
+        loadGameData(&games[i], save_path, detected_games[i].supported_game.save_type,
+                     detected_games[i].supported_game.trophy_data_loader);
     }
 
     // Selection for game selection menu
