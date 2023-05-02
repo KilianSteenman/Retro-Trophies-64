@@ -12,6 +12,7 @@
 #include "../save_state_utils.h"
 
 int get_skulltula_count(char *save_data) {
+    // TODO: Actually verify skulltula flags instead of the counter to prevent the duplicate skulltula glitch
     return read_short(save_data, 0xF0);
 }
 
