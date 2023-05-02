@@ -12,7 +12,7 @@
 #include "../save_state_utils.h"
 
 int get_skulltula_count(char *save_data) {
-    return 0;
+    return read_short(save_data, 0xF0);
 }
 
 void get_trophy_data_zelda_oot(Game *game, char *save_data) {

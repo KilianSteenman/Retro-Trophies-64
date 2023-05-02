@@ -21,5 +21,7 @@ int raw_is_flag_set(char *save_data, int address, char flag) {
 }
 
 int read_short(char *save_data, int address) {
-    return (((short) save_data[address + 1]) << 8) | save_data[address];
+    short value = (((short) save_data[address]) << 8) | save_data[address + 1];
+    debug_printf("Short %d\n", value);
+    return value;
 }
