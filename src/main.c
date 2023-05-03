@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "controller_ext.h"
 #include "game.h"
 #include "trophy.h"
 #include "debug.h"
@@ -167,15 +168,15 @@ void on_game_selected(Game *game) {
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
     // Check controller input
     controller_scan();
-    struct controller_data ckeys = get_keys_down();
+    struct controller_data keys_down = get_keys_down();
 
-    if (ckeys.c[0].down) {
+    if (is_down_pressed(keys_down)) {
         move_down(gameSelection);
-    } else if (ckeys.c[0].up) {
+    } else if (is_up_pressed(keys_down)) {
         move_up(gameSelection);
     }
 
-    if (ckeys.c[0].A) {
+    if (keys_down.c[0].A) {
         on_game_selected(&games[gameSelection->selectedIndex]);
     }
 
@@ -205,15 +206,15 @@ void render_trophy_screen(display_context_t disp, Game game) {
 
     // Check controller input
     controller_scan();
-    struct controller_data ckeys = get_keys_down();
+    struct controller_data keys_down = get_keys_down();
 
-    if (ckeys.c[0].down) {
+    if (is_down_pressed(keys_down)) {
         move_down(trophySelection);
-    } else if (ckeys.c[0].up) {
+    } else if (is_up_pressed(keys_down)) {
         move_up(trophySelection);
     }
 
-    if (ckeys.c[0].B) {
+    if (keys_down.c[0].B) {
         state = GAME_SELECT;
     }
 

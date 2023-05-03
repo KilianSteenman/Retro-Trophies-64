@@ -9,6 +9,7 @@ all: hello.z64
 .PHONY: all
 
 OBJS = $(BUILD_DIR)/main.o \
+$(BUILD_DIR)/controller_ext.o \
 $(BUILD_DIR)/graphics_ext.o \
 $(BUILD_DIR)/trophy.o \
 $(BUILD_DIR)/game.o \
