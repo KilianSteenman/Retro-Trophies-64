@@ -295,17 +295,19 @@ char *strip_extension(const char *filename) {
     return newfilename;
 }
 
-void print_dir(char *dir, SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games,
-               int *detected_game_count) {
-    debug_printf("Supported games:\n");
-    for (int i = 0; i < supported_game_count; i++) {
-        debug_printf("%s - %s\n", supported_games[i].game_code, supported_games[i].name);
-    }
+typedef struct {
+    char dir[257];
+} Dirs;
 
-    debug_printf("Detecting games:\n");
+void
+detect_games_in_dir(char *dir, SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games,
+                    int *detected_game_count) {
+    debug_printf("Reading dir '%s'\n", dir);
+    Dirs subDirs[20];
+    int subDirIndex = 0;
+
     int path_count = 0;
     GamePath paths[10];
-//    int counter = 0;
 
     dir_t buf;
     int ret = dir_findfirst(dir, &buf);
@@ -319,9 +321,17 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
                 strcpy(paths[path_count].file_name, strip_extension(buf.d_name));
                 path_count++;
             }
+        } else {
+            if (subDirIndex < 20) {
+                debug_printf("Detected dir '%s%s/'\n", dir, buf.d_name);
+                sprintf(subDirs[subDirIndex++].dir, "%s%s/", dir, buf.d_name);
+            } else {
+                debug_printf("Reached maximum amount of subdirectories\n");
+            }
         }
         ret = dir_findnext(dir, &buf);
     }
+    debug_printf_and_pause("Pause\n");
 
     debug_printf("Found %d games... Detecting game type\n", path_count);
     char game_id[3];
@@ -329,7 +339,6 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
         debug_printf("Detecting game %s\n", paths[i].game_path);
         // Checks the 'unique' identifier for this rom
         FILE *game_rom = fopen(paths[i].game_path, "r");
-//        debug_printf("Opened game %s\n", paths[i].game_path);
         if (game_rom == NULL) {
             debug_printf_and_stop("Unable to open game rom");
             return;
@@ -356,11 +365,23 @@ void print_dir(char *dir, SupportedGame *supported_games, int supported_game_cou
             debug_printf("Unknown game detected '%.3s' at %s \n", game_id, paths[i].game_path);
         }
     }
-    debug_printf("Finished game detection\n");
+
+    // Scan subdirectories
+    if (subDirIndex > 0) {
+        for (int i = 0; i < subDirIndex; i++) {
+            detect_games_in_dir(subDirs[i].dir, supported_games, supported_game_count, detected_games,
+                                detected_game_count);
+        }
+    }
 }
 
 void detect_games(SupportedGame *supported_games, int supported_game_count, DetectedGame *detected_games,
                   int *detected_game_count) {
+    debug_printf("Supported games:\n");
+    for (int i = 0; i < supported_game_count; i++) {
+        debug_printf("%s - %s\n", supported_games[i].game_code, supported_games[i].name);
+    }
+
 #ifdef N64_HARDWARE
     if (!debug_init_sdfs("sd:/", -1)) {
 #else
@@ -369,11 +390,14 @@ void detect_games(SupportedGame *supported_games, int supported_game_count, Dete
         debug_printf_and_stop("Error opening SD");
     }
 
+    debug_printf("Detecting games:\n");
+
 #ifdef N64_HARDWARE
-    print_dir("sd:/", supported_games, supported_game_count, detected_games, detected_game_count);
+    detect_games_in_dir("sd:/", supported_games, supported_game_count, detected_games, detected_game_count);
 #else
-    print_dir("rom://", supported_games, supported_game_count, detected_games, detected_game_count);
+    detect_games_in_dir("rom://", supported_games, supported_game_count, detected_games, detected_game_count);
 #endif
+    debug_printf("Finished game detection\n");
 }
 
 void load_sprite_data() {
