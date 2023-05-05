@@ -1,11 +1,11 @@
 V=1
 SOURCE_DIR=src
 BUILD_DIR=build
-PROG_NAME=coins
+PROG_NAME=N64 Trophies
 
 include $(N64_INST)/include/n64.mk
 
-all: hello.z64
+all: n64-trophies.z64
 .PHONY: all
 
 OBJS = $(BUILD_DIR)/main.o \
@@ -23,11 +23,11 @@ $(BUILD_DIR)/games/super_smash_bros.o \
 $(BUILD_DIR)/games/mario_kart_64.o \
 $(BUILD_DIR)/games/zelda_oot.o
 
-hello.z64: N64_ROM_TITLE="Hello World"
-hello.z64: $(BUILD_DIR)/hello.dfs
+n64-trophies.z64: N64_ROM_TITLE="N64 Trophies"
+n64-trophies.z64: $(BUILD_DIR)/n64-trophies.dfs
 
-$(BUILD_DIR)/hello.elf: $(OBJS)
-$(BUILD_DIR)/hello.dfs: $(wildcard filesystem/*)
+$(BUILD_DIR)/n64-trophies.elf: $(OBJS)
+$(BUILD_DIR)/n64-trophies.dfs: $(wildcard filesystem/*)
 
 clean:
 	rm -f $(BUILD_DIR)/* *.z64
