@@ -20,13 +20,14 @@ typedef enum {
     TROPHY_OVERVIEW
 } State;
 
-State state = GAME_SELECT;
+State state = LOADING;
 Game *selectedGame;
 
 sprite_t *silhouette;
 sprite_t *bronze;
 sprite_t *silver;
 sprite_t *gold;
+sprite_t *splash;
 
 ListSelection *gameSelection;
 ListSelection *trophySelection;
@@ -159,6 +160,17 @@ void on_game_selected(Game *game) {
     if (trophySelection->maxIndex <= trophySelection->itemCount) {
         trophySelection->endIndex = trophySelection->maxIndex;
     }
+}
+
+void render_loading_screen(display_context_t disp) {
+    graphics_draw_sprite_trans(disp, 300, 100, splash);
+
+    graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
+    graphics_draw_text(disp, 270, 140, "N64 Trophies");
+    graphics_draw_text(disp, 310, 150, "by");
+    graphics_draw_text(disp, 275, 160, "Shadow-Link");
+
+    graphics_draw_text(disp, 220, 220, "Trophy art by Vsio NeithR");
 }
 
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
@@ -405,6 +417,11 @@ void init_sprite_data() {
     gold = malloc(dfs_size(fp));
     dfs_read(gold, 1, dfs_size(fp), fp);
     dfs_close(fp);
+
+    fp = dfs_open("/trophy_splash.sprite");
+    splash = malloc(dfs_size(fp));
+    dfs_read(splash, 1, dfs_size(fp), fp);
+    dfs_close(fp);
 }
 
 int main(void) {
@@ -464,10 +481,16 @@ int main(void) {
         graphics_fill_screen(disp, SCREEN_BACKGROUND_COLOR);
 
         /* Render the screen */
-        if (state == GAME_SELECT) {
-            render_game_select_screen(disp, games, detected_game_count);
-        } else if (state == TROPHY_OVERVIEW) {
-            render_trophy_screen(disp, *selectedGame);
+        switch (state) {
+            case LOADING:
+                render_loading_screen(disp);
+                break;
+            case GAME_SELECT:
+                render_game_select_screen(disp, games, detected_game_count);
+                break;
+            case TROPHY_OVERVIEW:
+                render_trophy_screen(disp, *selectedGame);
+                break;
         }
 
         /* Force backbuffer flip */
