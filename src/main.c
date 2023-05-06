@@ -303,7 +303,7 @@ detect_games_in_dir(char *dir, SupportedGame *supported_games, int supported_gam
             // Check if this is an N64 rom
             char *dot = strrchr(buf.d_name, '.');
             if (dot && !strcmp(dot, ".z64") && buf.d_name[0] != '.') {
-//                debug_printf("Z64 file detected %s\n", buf.d_name);
+                debug_printf("Z64 file detected %s\n", buf.d_name);
                 sprintf(paths[path_count].game_path, "%s/%s", dir, buf.d_name);
                 strcpy(paths[path_count].file_name, strip_extension(buf.d_name));
                 path_count++;
@@ -323,7 +323,7 @@ detect_games_in_dir(char *dir, SupportedGame *supported_games, int supported_gam
     debug_printf("Found %d games... Detecting game type\n", path_count);
     char game_id[3];
     for (int i = 0; i < path_count; i++) {
-//        debug_printf("Identifying game %s\n", paths[i].game_path);
+        debug_printf("Identifying game %s\n", paths[i].game_path);
         // Checks the 'unique' identifier for this rom
         FILE *game_rom = fopen(paths[i].game_path, "r");
         if (game_rom == NULL) {
@@ -339,7 +339,7 @@ detect_games_in_dir(char *dir, SupportedGame *supported_games, int supported_gam
         bool is_supported = false;
         for (int sg = 0; sg < supported_game_count; sg++) {
             if (strncmp(game_id, supported_games[sg].game_code, 3) == 0) {
-//                debug_printf("Detected %s\n", supported_games[sg].name);
+                debug_printf("Detected %s\n", supported_games[sg].name);
                 is_supported = true;
 
                 strcpy(detected_games[*detected_game_count].filename, paths[i].file_name);
@@ -385,7 +385,7 @@ void detect_games(SupportedGame *supported_games, int supported_game_count, Dete
     debug_printf("Finished game detection\n");
 }
 
-void load_sprite_data() {
+void init_sprite_data() {
     int fp = dfs_open("/trophy_silhouette.sprite");
     silhouette = malloc(dfs_size(fp));
     dfs_read(silhouette, 1, dfs_size(fp), fp);
@@ -419,7 +419,7 @@ int main(void) {
     debug_init_usblog();
     console_set_debug(true);
 
-    load_sprite_data();
+    init_sprite_data();
     init_colors();
     init_supported_games();
 
