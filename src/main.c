@@ -162,6 +162,8 @@ void on_game_selected(Game *game) {
     }
 }
 
+int loading_counter = 0;
+
 void render_loading_screen(display_context_t disp) {
     graphics_draw_sprite_trans(disp, 300, 100, splash);
 
@@ -171,6 +173,12 @@ void render_loading_screen(display_context_t disp) {
     graphics_draw_text(disp, 275, 160, "Shadow-Link");
 
     graphics_draw_text(disp, 220, 220, "Trophy art by Vsio NeithR");
+
+    if(loading_counter == 100000) {
+        state = GAME_SELECT;
+    } else {
+        loading_counter++;
+    }
 }
 
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
