@@ -307,7 +307,7 @@ detect_games_in_dir(char *dir, SupportedGame *supported_games, int supported_gam
     int subDirIndex = 0;
 
     int path_count = 0;
-    GamePath paths[10];
+    GamePath paths[100];
 
     dir_t buf;
     int ret = dir_findfirst(dir, &buf);
@@ -316,15 +316,15 @@ detect_games_in_dir(char *dir, SupportedGame *supported_games, int supported_gam
             // Check if this is an N64 rom
             char *dot = strrchr(buf.d_name, '.');
             if (dot && !strcmp(dot, ".z64") && buf.d_name[0] != '.') {
-                debug_printf("Z64 file detected %s\n", buf.d_name);
-                sprintf(paths[path_count].game_path, "%s%s", dir, buf.d_name);
+//                debug_printf("Z64 file detected %s\n", buf.d_name);
+                sprintf(paths[path_count].game_path, "%s/%s", dir, buf.d_name);
                 strcpy(paths[path_count].file_name, strip_extension(buf.d_name));
                 path_count++;
             }
-        } else {
+        } else if (buf.d_name[0] != '.') { // Ignore hidden dirs
             if (subDirIndex < 20) {
-                debug_printf("Detected dir '%s%s/'\n", dir, buf.d_name);
-                sprintf(subDirs[subDirIndex++].dir, "%s%s/", dir, buf.d_name);
+                debug_printf("Detected dir '%s/%s'\n", dir, buf.d_name);
+                sprintf(subDirs[subDirIndex++].dir, "%s/%s", dir, buf.d_name);
             } else {
                 debug_printf("Reached maximum amount of subdirectories\n");
             }
@@ -336,11 +336,11 @@ detect_games_in_dir(char *dir, SupportedGame *supported_games, int supported_gam
     debug_printf("Found %d games... Detecting game type\n", path_count);
     char game_id[3];
     for (int i = 0; i < path_count; i++) {
-        debug_printf("Detecting game %s\n", paths[i].game_path);
+//        debug_printf("Identifying game %s\n", paths[i].game_path);
         // Checks the 'unique' identifier for this rom
         FILE *game_rom = fopen(paths[i].game_path, "r");
         if (game_rom == NULL) {
-            debug_printf_and_stop("Unable to open game rom");
+            debug_printf_and_pause("Unable to open game rom '%s'\n", paths[i].game_path);
             return;
         }
         // Game ID is at 60 (well 59 actually)
@@ -352,7 +352,7 @@ detect_games_in_dir(char *dir, SupportedGame *supported_games, int supported_gam
         bool is_supported = false;
         for (int sg = 0; sg < supported_game_count; sg++) {
             if (strncmp(game_id, supported_games[sg].game_code, 3) == 0) {
-                debug_printf("Detected %s\n", supported_games[sg].name);
+//                debug_printf("Detected %s\n", supported_games[sg].name);
                 is_supported = true;
 
                 strcpy(detected_games[*detected_game_count].filename, paths[i].file_name);
@@ -361,8 +361,8 @@ detect_games_in_dir(char *dir, SupportedGame *supported_games, int supported_gam
             }
         }
 
-        if (is_supported) {
-            debug_printf("Unknown game detected '%.3s' at %s \n", game_id, paths[i].game_path);
+        if (!is_supported) {
+            debug_printf("Unknown game detected '%.3s' at %s\n", game_id, paths[i].game_path);
         }
     }
 
@@ -384,11 +384,9 @@ void detect_games(SupportedGame *supported_games, int supported_game_count, Dete
 
 #ifdef N64_HARDWARE
     if (!debug_init_sdfs("sd:/", -1)) {
-#else
-    if (dfs_init(DFS_DEFAULT_LOCATION) != DFS_ESUCCESS) {
-#endif
-        debug_printf_and_stop("Error opening SD");
+        debug_printf_and_stop("Error initializing SD\n");
     }
+#endif
 
     debug_printf("Detecting games:\n");
 
@@ -424,7 +422,9 @@ void load_sprite_data() {
 
 int main(void) {
     display_init(RESOLUTION_640x480, DEPTH_32_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
-    dfs_init(DFS_DEFAULT_LOCATION);
+    if (dfs_init(DFS_DEFAULT_LOCATION) != DFS_ESUCCESS) {
+        debug_printf_and_stop("Error initializing file system\n");
+    }
 
     console_init();
     controller_init();
@@ -443,7 +443,7 @@ int main(void) {
     supported_games[3] = (SupportedGame) {.name = "Mario Kart 64", .game_code = "KTE", .save_type = EEP, .trophy_data_loader = get_game_data_mario_kart_64};
     supported_games[4] = (SupportedGame) {.name = "The Legend of Zelda: Ocarina of Time", .game_code = "ZLP", .save_type = RAM, .trophy_data_loader = get_trophy_data_zelda_oot};
 
-    DetectedGame detected_games[50];
+    DetectedGame detected_games[100];
     int detected_game_count = 0;
     detect_games(supported_games, 5, detected_games, &detected_game_count);
 
