@@ -29,6 +29,9 @@ sprite_t *silver;
 sprite_t *gold;
 sprite_t *splash;
 
+sprite_t *button_a;
+sprite_t *button_b;
+
 ListSelection *gameSelection;
 ListSelection *trophySelection;
 
@@ -181,6 +184,10 @@ void render_loading_screen(display_context_t disp) {
     }
 }
 
+void render_button(display_context_t disp, int x, int y, char *text, sprite_t *sprite) {
+    graphics_draw_sprite_trans(disp, x, y, sprite);
+}
+
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
     // Check controller input
     controller_scan();
@@ -215,6 +222,9 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
         bool is_selected = i == gameSelection->selectedIndex;
         draw_game_tile(disp, 10, (i - gameSelection->startIndex) * 31 + HEADER_HEIGHT, games[i], is_selected);
     }
+
+    // Footer
+    render_button(disp, 100, 100, "View trophies", button_a);
 }
 
 void render_trophy_screen(display_context_t disp, Game game) {
@@ -429,6 +439,11 @@ void init_sprite_data() {
     fp = dfs_open("/trophy_splash.sprite");
     splash = malloc(dfs_size(fp));
     dfs_read(splash, 1, dfs_size(fp), fp);
+    dfs_close(fp);
+
+    fp = dfs_open("/button_a.sprite");
+    button_a = malloc(dfs_size(fp));
+    dfs_read(button_a, 1, dfs_size(fp), fp);
     dfs_close(fp);
 }
 
