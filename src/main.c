@@ -15,12 +15,12 @@
 #include "supported_games.h"
 
 typedef enum {
-    LOADING,
+    ABOUT,
     GAME_SELECT,
     TROPHY_OVERVIEW
 } State;
 
-State state = LOADING;
+State state = GAME_SELECT;
 Game *selectedGame;
 
 sprite_t *silhouette;
@@ -129,8 +129,8 @@ void draw_game_tile(display_context_t disp, int x, int y, Game game, bool is_sel
         tile_border_color = TILE_SELECTED_BORDER_COLOR;
         tile_text_color = TILE_SELECTED_TEXT_COLOR;
     }
-    graphics_set_color(tile_text_color, 0x0);
     graphics_draw_bordered_box(disp, x, y, 620, 30, tile_background_color, tile_border_color, BORDER_THICKNESS);
+    graphics_set_color(tile_text_color, 0x0);
     graphics_draw_text(disp, x + 15, y + 10, game.title);
 
     int bronzeCount = 0;
@@ -165,9 +165,17 @@ void on_game_selected(Game *game) {
     }
 }
 
-int loading_counter = 0;
+void render_about_screen(display_context_t disp) {
+    // Update
 
-void render_loading_screen(display_context_t disp) {
+    // Check controller input
+    controller_scan();
+    struct controller_data keys_down = get_keys_down();
+    if(keys_down.c[0].B) {
+        state = GAME_SELECT;
+    }
+
+    // Render
     graphics_draw_sprite_trans(disp, 300, 100, splash);
 
     graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
@@ -176,16 +184,10 @@ void render_loading_screen(display_context_t disp) {
     graphics_draw_text(disp, 275, 160, "Shadow-Link");
 
     graphics_draw_text(disp, 220, 220, "Trophy art by Vsio NeithR");
-
-    if(loading_counter == 100000) {
-        state = GAME_SELECT;
-    } else {
-        loading_counter++;
-    }
 }
 
 void render_button(display_context_t disp, int x, int y, char *text, sprite_t *sprite) {
-    graphics_draw_sprite_trans(disp, x, y, sprite);
+//    graphics_draw_sprite_trans(disp, x, y, sprite);
 }
 
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
@@ -201,6 +203,8 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
 
     if (keys_down.c[0].A) {
         on_game_selected(&games[gameSelection->selectedIndex]);
+    } else if(keys_down.c[0].R) {
+        state = ABOUT;
     }
 
     // Render
@@ -447,6 +451,10 @@ void init_sprite_data() {
     dfs_close(fp);
 }
 
+void render_about(display_context_t disp) {
+    graphics_draw_bordered_box(disp, 200, 200, 200, 200, SCREEN_BACKGROUND_COLOR, SCREEN_BACKGROUND_COLOR, 5);
+}
+
 int main(void) {
     display_init(RESOLUTION_640x480, DEPTH_32_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
     if (dfs_init(DFS_DEFAULT_LOCATION) != DFS_ESUCCESS) {
@@ -505,8 +513,8 @@ int main(void) {
 
         /* Render the screen */
         switch (state) {
-            case LOADING:
-                render_loading_screen(disp);
+            case ABOUT:
+                render_about_screen(disp);
                 break;
             case GAME_SELECT:
                 render_game_select_screen(disp, games, detected_game_count);
