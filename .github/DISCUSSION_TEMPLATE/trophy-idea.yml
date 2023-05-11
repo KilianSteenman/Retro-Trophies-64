@@ -1,0 +1,48 @@
+title: "[Trophy-Idea] <Game Title>"
+labels: ["game-support"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: "What is required to receive the trophy?"
+      value: |
+        Full description of trophy...
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ### Trophy info
+        Optionally provide ideas for the trophy title, level and description
+  - type: dropdown
+    id: level
+    attributes:
+      label: Trophy level
+      options:
+        - Undefined
+        - Bronze
+        - Silver
+        - Gold
+        - Platinum
+    validations:
+      required: true
+  - type: textarea
+    id: trophy_title
+    attributes:
+      label: Title
+      description: "Suggested trophy title"
+  - type: textarea
+    id: trophy_description
+    attributes:
+      label: Description
+      description: "Suggested trophy description"
+  - type: dropdown
+    id: save
+    attributes:
+      label: Data is available in save file
+      options:
+        - Unknown
+        - Yeah
+    validations:
+      required: true
