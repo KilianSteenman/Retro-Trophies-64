@@ -1,0 +1,36 @@
+title: "[Trophy-List] <Game Title>"
+labels: ["game-support"]
+body:
+  - type: textarea
+    id: implemented
+    attributes:
+      label: Current trophy list
+      description: "What are the currently implemented trophies?"
+      value: |
+        | Title         | Description        | Requirements  | Level                   |
+        | ------------- | ------------------ | ------------- | -------------           |
+        | Trophy title  | Trophy description | Win something | :3rd_place_medal: / :2nd_place_medal: / :1st_place_medal: |
+    validations:
+      required: true
+  - type: textarea
+    id: future
+    attributes:
+      label: Future trophies
+      description: "What are future trophies to implement?"
+      value: |
+        | Title         | Description        | Requirements  | Level                   |
+        | ------------- | ------------------ | ------------- | -------------           |
+        | Trophy title  | Trophy description | Win something | :3rd_place_medal: / :2nd_place_medal: / :1st_place_medal: |
+    validations:
+      required: true
+  - type: textarea
+    id: ideas
+    attributes:
+      label: Ideas
+      description: "Ideas for trophies"
+      value: |
+        | Title         | Description        | Requirements  | Level                   |
+        | ------------- | ------------------ | ------------- | -------------           |
+        | Trophy title  | Trophy description | Win something | :3rd_place_medal: / :2nd_place_medal: / :1st_place_medal: |
+    validations:
+      required: true
