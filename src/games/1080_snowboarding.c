@@ -8,6 +8,13 @@
 #include "../save_state_utils.h"
 #include "../game.h"
 
+typedef enum {
+    EASY = 1,
+    MEDIUM = 2,
+    HARD = 3,
+    EXPERT = 4
+} Difficulty;
+
 int get_time_millis(char *save_data, int address) {
     unsigned int totalValue = 0;
     totalValue += (save_data[address] * 6000);      // Convert minutes to millis
@@ -38,15 +45,19 @@ int is_any_time_trial_record_broken(char *save_data) {
     return time_trial_record_count(save_data) >= 1;
 }
 
+char has_beaten_difficulty(char *save_data, Difficulty difficulty) {
+    return read_short(save_data, 0x1FA) > difficulty;
+}
+
 void get_game_data_1080(Game *game, char *save_data) {
     add_bool_trophy(game, "Into the cold", "Finish easy difficulty", BRONZE,
-                    raw_is_greater_or_equal(save_data, 0x1FA, 2));
+                    has_beaten_difficulty(save_data, EASY));
     add_bool_trophy(game, "Powder Threat", "Finish medium difficulty", SILVER,
-                    raw_is_greater_or_equal(save_data, 0x1FA, 3));
+                    has_beaten_difficulty(save_data, MEDIUM));
     add_bool_trophy(game, "Stick with it", "Finish hard difficulty", SILVER,
-                    raw_is_greater_or_equal(save_data, 0x1FA, 4));
+                    has_beaten_difficulty(save_data, HARD));
     add_bool_trophy(game, "Wit's Thicket", "Finish expert difficulty", GOLD,
-                    raw_is_greater_or_equal(save_data, 0x1FA, 5));
-    add_bool_trophy(game, "Winterborn", "Beat a time trial highscore", BRONZE, is_any_time_trial_record_broken(save_data));
-    add_counter_trophy(game, "Conquest", "Beat all time trial highscores", SILVER, 6, time_trial_record_count(save_data));
+                    has_beaten_difficulty(save_data, EXPERT));
+    add_bool_trophy(game, "Winterborn", "Beat a time highscore", BRONZE, is_any_time_trial_record_broken(save_data));
+    add_counter_trophy(game, "Conquest", "Beat all time highscores", SILVER, 6, time_trial_record_count(save_data));
 }
