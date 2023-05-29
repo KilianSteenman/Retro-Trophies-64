@@ -1,4 +1,4 @@
-# N64 Trophies 🏆
+# Retro Trophies 64 🏆
 
 An Everdrive trophy/achievement system that lets you earn 'trophies' for N64 games.
 
