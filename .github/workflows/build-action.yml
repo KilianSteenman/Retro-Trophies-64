@@ -1,0 +1,32 @@
+name: build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install libdragon
+        run: |
+          npm install -g libdragon
+          libdragon init
+      - name: Retrieve secret assets and decode to file
+        env:
+          TROPHY_BRONZE_BASE64: ${{ secrets.TROPHY_BRONZE_BASE64 }}
+          TROPHY_SILVER_BASE64: ${{ secrets.TROPHY_SILVER_BASE64 }}
+          TROPHY_GOLD_BASE64: ${{ secrets.TROPHY_GOLD_BASE64 }}
+          TROPHY_PLATINUM_BASE64: ${{ secrets.TROPHY_PLATINUM_BASE64 }}
+          TROPHY_SPLASH_BASE64: ${{ secrets.TROPHY_SPLASH_BASE64 }}
+          TROPHY_SILHOUETTE_BASE64: ${{ secrets.TROPHY_SILHOUETTE_BASE64 }}
+        run: |
+          echo $TROPHY_BRONZE_BASE64 | base64 --decode > ./filesystem/trophy_bronze.sprite
+          echo $TROPHY_SILVER_BASE64 | base64 --decode > ./filesystem/trophy_silver.sprite
+          echo $TROPHY_GOLD_BASE64 | base64 --decode > ./filesystem/trophy_gold.sprite
+          echo $TROPHY_PLATINUM_BASE64 | base64 --decode > ./filesystem/trophy_platinum.sprite
+          echo $TROPHY_SPLASH_BASE64 | base64 --decode > ./filesystem/trophy_splash.sprite
+          echo $TROPHY_SILHOUETTE_BASE64 | base64 --decode > ./filesystem/trophy_silhouette.sprite
+      - name: Build N64 rom
+        run: |
+          libdragon make CFLAGS=-DN64_HARDWARE

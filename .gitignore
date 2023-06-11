@@ -3,6 +3,8 @@
 
 # LibDragon
 libdragon/
+libdragon
+.libdragon/
 
 # Build
 build/
