@@ -221,10 +221,14 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
     draw_trophy_counter(disp, OFFSET_TROPHY_SILVER_X, 10, silverCount, silver);
     draw_trophy_counter(disp, OFFSET_TROPHY_GOLD_X, 10, goldCount, gold);
 
-    // Game list
-    for (int i = gameSelection->startIndex; i < gameSelection->endIndex; i++) {
-        bool is_selected = i == gameSelection->selectedIndex;
-        draw_game_tile(disp, 10, (i - gameSelection->startIndex) * 31 + HEADER_HEIGHT, games[i], is_selected);
+    if(gameCount > 0) {
+        // Game list
+        for (int i = gameSelection->startIndex; i < gameSelection->endIndex; i++) {
+            bool is_selected = i == gameSelection->selectedIndex;
+            draw_game_tile(disp, 10, (i - gameSelection->startIndex) * 31 + HEADER_HEIGHT, games[i], is_selected);
+        }
+    } else {
+        graphics_draw_text(disp, 200, 120, "No supported games detected");
     }
 
     // Footer
