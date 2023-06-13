@@ -3,6 +3,8 @@
 
 # LibDragon
 libdragon/
+libdragon
+.libdragon/
 
 # Build
 build/
@@ -13,3 +15,7 @@ build/
 
 # Source assets
 assets/
+
+# N64 Save formats
+*.srm
+*.eep
