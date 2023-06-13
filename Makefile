@@ -1,11 +1,11 @@
 V=1
 SOURCE_DIR=src
 BUILD_DIR=build
-PROG_NAME=N64 Trophies
+PROG_NAME=Retro Trophies 64
 
 include $(N64_INST)/include/n64.mk
 
-all: n64-trophies.z64
+all: retro-trophies-64.z64
 .PHONY: all
 
 OBJS = $(BUILD_DIR)/main.o \
@@ -23,11 +23,11 @@ $(BUILD_DIR)/games/super_smash_bros.o \
 $(BUILD_DIR)/games/mario_kart_64.o \
 $(BUILD_DIR)/games/zelda_oot.o
 
-n64-trophies.z64: N64_ROM_TITLE="N64 Trophies"
-n64-trophies.z64: $(BUILD_DIR)/n64-trophies.dfs
+retro-trophies-64.z64: N64_ROM_TITLE="Retro Trophies 64"
+retro-trophies-64.z64: $(BUILD_DIR)/retro-trophies-64.dfs
 
-$(BUILD_DIR)/n64-trophies.elf: $(OBJS)
-$(BUILD_DIR)/n64-trophies.dfs: $(wildcard filesystem/*)
+$(BUILD_DIR)/retro-trophies-64.elf: $(OBJS)
+$(BUILD_DIR)/retro-trophies-64.dfs: $(wildcard filesystem/*)
 
 clean:
 	rm -f $(BUILD_DIR)/* *.z64
