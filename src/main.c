@@ -179,7 +179,7 @@ void render_about_screen(display_context_t disp) {
     graphics_draw_sprite_trans(disp, 300, 100, splash);
 
     graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
-    graphics_draw_text(disp, 270, 140, "N64 Trophies");
+    graphics_draw_text(disp, 270, 140, "Retro Trophies 64");
     graphics_draw_text(disp, 310, 150, "by");
     graphics_draw_text(disp, 275, 160, "Shadow-Link");
 
@@ -211,7 +211,7 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
 
     // Header
     graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
-    graphics_draw_text(disp, 20, 15, "N64 Trophies");
+    graphics_draw_text(disp, 20, 15, "Retro Trophies 64");
 
     // Totals
     int bronzeCount = 0, silverCount = 0, goldCount = 0, completedCount = 0;
