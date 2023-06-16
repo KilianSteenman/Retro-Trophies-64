@@ -179,9 +179,9 @@ void render_about_screen(display_context_t disp) {
     graphics_draw_sprite_trans(disp, 300, 100, splash);
 
     graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
-    graphics_draw_text(disp, 270, 140, "Retro Trophies 64");
-    graphics_draw_text(disp, 310, 150, "by");
-    graphics_draw_text(disp, 275, 160, "Shadow-Link");
+    graphics_draw_text(disp, 240, 140, "Retro Trophies 64");
+    graphics_draw_text(disp, 300, 150, "by");
+    graphics_draw_text(disp, 265, 160, "Shadow-Link");
 
     graphics_draw_text(disp, 220, 220, "Trophy art by Vsio NeithR");
 }
