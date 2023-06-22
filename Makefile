@@ -18,6 +18,7 @@ $(BUILD_DIR)/save_state_utils.o \
 $(BUILD_DIR)/save_type.o \
 $(BUILD_DIR)/list_selection.o \
 $(BUILD_DIR)/games/1080_snowboarding.o \
+$(BUILD_DIR)/games/diddy_kong_racing.o \
 $(BUILD_DIR)/games/super_mario_64.o \
 $(BUILD_DIR)/games/super_smash_bros.o \
 $(BUILD_DIR)/games/mario_kart_64.o \

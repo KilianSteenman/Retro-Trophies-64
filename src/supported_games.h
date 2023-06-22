@@ -8,12 +8,13 @@
 #include "region.h"
 #include "save_type.h"
 #include "games/1080_snowboarding.h"
+#include "games/diddy_kong_racing.h"
 #include "games/super_mario_64.h"
 #include "games/super_smash_bros.h"
 #include "games/mario_kart_64.h"
 #include "games/zelda_oot.h"
 
-#define SUPPORTED_GAME_COUNT 10
+#define SUPPORTED_GAME_COUNT 12
 
 typedef void (*TrophyDataLoader)(Game *, char *);
 
@@ -38,6 +39,8 @@ void init_supported_games() {
     supported_games[7] = (SupportedGame) {.name = "Mario Kart 64", .game_code = "KTP", .region = PAL, .save_type = EEP, .trophy_data_loader = get_game_data_mario_kart_64};
     supported_games[8] = (SupportedGame) {.name = "The Legend of Zelda: Ocarina of Time", .game_code = "ZLE", .region = USA, .save_type = RAM, .trophy_data_loader = get_trophy_data_zelda_oot};
     supported_games[9] = (SupportedGame) {.name = "The Legend of Zelda: Ocarina of Time", .game_code = "ZLP", .region = PAL, .save_type = RAM, .trophy_data_loader = get_trophy_data_zelda_oot};
+    supported_games[10] = (SupportedGame) {.name = "Diddy Kong Racing", .game_code = "DYE", .save_type = EEP, .trophy_data_loader = get_game_data_diddy_kong_racing};
+    supported_games[11] = (SupportedGame) {.name = "Diddy Kong Racing", .game_code = "DYE", .save_type = EEP, .trophy_data_loader = get_game_data_diddy_kong_racing};
 }
 
 #endif //N64_TROPHIES_SUPPORTED_GAMES_H
