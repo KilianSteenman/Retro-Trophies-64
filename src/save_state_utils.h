@@ -13,6 +13,8 @@ int raw_is_greater_or_equal(char *save_data, int address, int requiredValue);
 
 int raw_is_flag_set(char *save_data, int address, char flag);
 
+char read_byte(char *save_data, int address);
+
 int read_short(char *save_data, int address);
 
 #endif //N64_TROPHIES_SAVE_STATE_UTILS_H

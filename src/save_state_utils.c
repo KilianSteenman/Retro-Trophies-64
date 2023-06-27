@@ -20,6 +20,12 @@ int raw_is_flag_set(char *save_data, int address, char flag) {
     return (save_data[address] & flag) == flag;
 }
 
+char read_byte(char *save_data, int address) {
+    char value = save_data[address];
+    debug_printf("Byte %d\n", value);
+    return value;
+}
+
 int read_short(char *save_data, int address) {
     short value = (((short) save_data[address]) << 8) | save_data[address + 1];
     debug_printf("Short %d\n", value);
