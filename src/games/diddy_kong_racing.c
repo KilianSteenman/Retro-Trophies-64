@@ -13,6 +13,13 @@ int get_total_balloon_count(char *save_data) {
     return (read_byte(save_data, 0xE) & 0b11111110) >> 1;
 }
 
+int get_key_count(char *save_data) {
+    return raw_is_flag_set(save_data, 0x48, 0b00000010) +
+            raw_is_flag_set(save_data, 0x48, 0b00000100) +
+            raw_is_flag_set(save_data, 0x48, 0b00001000) +
+            raw_is_flag_set(save_data, 0x48, 0b00010000);
+}
+
 bool has_first_balloon(char *save_data) {
     return get_total_balloon_count(save_data) >= 1;
 }
@@ -23,7 +30,7 @@ void get_game_data_diddy_kong_racing(Game *game, char *save_data) {
     add_counter_trophy(game, "Beat all levels", "Beat all levels", BRONZE, 50, 0);
     add_counter_trophy(game, "Beat all silver coin", "Beat all silver coin", BRONZE, 50, 0);
     add_counter_trophy(game, "Got all golden trophies", "Got all golden trophies", BRONZE, 5, 0);
-    add_counter_trophy(game, "Found all hidden keys", "Found all hidden keys", BRONZE, 4, 0);
+    add_counter_trophy(game, "Found all hidden keys", "Found all hidden keys", SILVER, 4, get_key_count(save_data));
     add_bool_trophy(game, "Beat dino domain", "First balloon", BRONZE, true);
     add_bool_trophy(game, "Beat sherbet island", "First balloon", BRONZE, true);
     add_bool_trophy(game, "Beat snowflake mountain", "First balloon", BRONZE, true);
