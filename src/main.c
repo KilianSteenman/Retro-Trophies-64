@@ -23,7 +23,7 @@ typedef enum {
 State state = GAME_SELECT;
 Game *selectedGame;
 
-sprite_t *silhouette;
+sprite_t *locked;
 sprite_t *bronze;
 sprite_t *silver;
 sprite_t *gold;
@@ -47,10 +47,10 @@ sprite_t *get_trophy_sprite(Trophy *trophy) {
             case GOLD:
                 return gold;
             default:
-                return silhouette;
+                return locked;
         }
     } else {
-        return silhouette;
+        return locked;
     }
 }
 
@@ -424,9 +424,9 @@ void detect_games(SupportedGame *supported_games, int supported_game_count, Dete
 }
 
 void init_sprite_data() {
-    int fp = dfs_open("/trophy_silhouette.sprite");
-    silhouette = malloc(dfs_size(fp));
-    dfs_read(silhouette, 1, dfs_size(fp), fp);
+    int fp = dfs_open("/trophy_locked.sprite");
+    locked = malloc(dfs_size(fp));
+    dfs_read(locked, 1, dfs_size(fp), fp);
     dfs_close(fp);
 
     fp = dfs_open("/trophy_bronze.sprite");
