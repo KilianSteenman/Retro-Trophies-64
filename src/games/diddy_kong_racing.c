@@ -15,9 +15,27 @@ int get_total_balloon_count(char *save_data) {
 
 int get_key_count(char *save_data) {
     return raw_is_flag_set(save_data, 0x48, 0b00000010) +
-            raw_is_flag_set(save_data, 0x48, 0b00000100) +
-            raw_is_flag_set(save_data, 0x48, 0b00001000) +
-            raw_is_flag_set(save_data, 0x48, 0b00010000);
+           raw_is_flag_set(save_data, 0x48, 0b00000100) +
+           raw_is_flag_set(save_data, 0x48, 0b00001000) +
+           raw_is_flag_set(save_data, 0x48, 0b00010000);
+}
+
+bool has_beaten_car_challenge(char *save_data) {
+    return raw_is_flag_set(save_data, 0x32, 0b10000000);
+}
+
+bool has_beaten_hovercraft_challenge(char *save_data) {
+    return raw_is_flag_set(save_data, 0x33, 0b00000001);
+}
+
+bool has_beaten_plane_challenge(char *save_data) {
+    return raw_is_flag_set(save_data, 0x33, 0b00000010);
+}
+
+bool has_beaten_all_challenges(char *save_data) {
+    return has_beaten_car_challenge(save_data) &&
+           has_beaten_hovercraft_challenge(save_data) &&
+           has_beaten_plane_challenge(save_data);
 }
 
 bool has_first_balloon(char *save_data) {
@@ -26,7 +44,13 @@ bool has_first_balloon(char *save_data) {
 
 void get_game_data_diddy_kong_racing(Game *game, char *save_data) {
     add_bool_trophy(game, "First balloon", "Collect a golden balloon", BRONZE, has_first_balloon(save_data));
-    add_counter_trophy(game, "All balloons", "Collect all golden balloons", BRONZE, 47, get_total_balloon_count(save_data));
+    add_counter_trophy(game, "All balloons", "Collect all golden balloons", BRONZE, 47,
+                       get_total_balloon_count(save_data));
+    add_bool_trophy(game, "Car challenge", "Car challenge", BRONZE, has_beaten_car_challenge(save_data));
+    add_bool_trophy(game, "Hovercraft challenge", "Hovercraft challenge", BRONZE,
+                    has_beaten_hovercraft_challenge(save_data));
+    add_bool_trophy(game, "Plane challenge", "Plane challenge", BRONZE, has_beaten_plane_challenge(save_data));
+    add_bool_trophy(game, "Beat all Taj Challenges", "Beat all Taj Challenges", SILVER, has_beaten_all_challenges(save_data));
     add_counter_trophy(game, "Beat all levels", "Beat all levels", BRONZE, 50, 0);
     add_counter_trophy(game, "Beat all silver coin", "Beat all silver coin", BRONZE, 50, 0);
     add_counter_trophy(game, "Got all golden trophies", "Got all golden trophies", BRONZE, 5, 0);
