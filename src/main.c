@@ -214,7 +214,7 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
         move_up(gameSelection);
     }
 
-    if (keys_down.c[0].A) {
+    if (gameCount > 0 && keys_down.c[0].A) {
         on_game_selected(&games[gameSelection->selectedIndex]);
     } else if (keys_down.c[0].R) {
         state = ABOUT;
