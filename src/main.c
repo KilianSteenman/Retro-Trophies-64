@@ -66,7 +66,7 @@ sprite_t *get_trophy_sprite(Trophy *trophy) {
 
 void render_footer(display_context_t disp) {
     graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
-    graphics_draw_text(disp, 230, 220, about);
+    graphics_draw_text(disp, 230, 225, about);
 }
 
 void draw_trophy(int x, int y, display_context_t disp, Trophy trophy, bool is_selected, bool show_spoiler) {
