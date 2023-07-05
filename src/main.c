@@ -288,7 +288,7 @@ void render_trophy_screen(display_context_t disp, Game game) {
     // Trophy list
     for (int i = trophySelection->startIndex; i < trophySelection->endIndex; i++) {
         bool is_selected = i == trophySelection->selectedIndex;
-        draw_trophy(10, ((30 * (i - trophySelection->startIndex)) + HEADER_HEIGHT), disp, game.trophies[i],
+        draw_trophy(10, ((31 * (i - trophySelection->startIndex)) + HEADER_HEIGHT), disp, game.trophies[i],
                     is_selected, show_spoiler);
     }
 }
