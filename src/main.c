@@ -14,6 +14,14 @@
 #include "save_type.h"
 #include "supported_games.h"
 
+// Trick to pass in the VERSION via cflags
+#define xstr(s) str(s)
+#define str(s) #s
+
+#ifndef VERSION
+#define VERSION dev
+#endif
+
 typedef enum {
     ABOUT,
     GAME_SELECT,
@@ -37,6 +45,8 @@ ListSelection *trophySelection;
 
 const char *spoilerDescription = "Trophy contains spoilers";
 
+char about[20];
+
 sprite_t *get_trophy_sprite(Trophy *trophy) {
     if (trophy->isCollected) {
         switch (trophy->level) {
@@ -52,6 +62,11 @@ sprite_t *get_trophy_sprite(Trophy *trophy) {
     } else {
         return locked;
     }
+}
+
+void render_footer(display_context_t disp) {
+    graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
+    graphics_draw_text(disp, 230, 225, about);
 }
 
 void draw_trophy(int x, int y, display_context_t disp, Trophy trophy, bool is_selected, bool show_spoiler) {
@@ -171,7 +186,7 @@ void render_about_screen(display_context_t disp) {
     // Check controller input
     controller_scan();
     struct controller_data keys_down = get_keys_down();
-    if(keys_down.c[0].B) {
+    if (keys_down.c[0].B) {
         state = GAME_SELECT;
     }
 
@@ -182,8 +197,6 @@ void render_about_screen(display_context_t disp) {
     graphics_draw_text(disp, 240, 140, "Retro Trophies 64");
     graphics_draw_text(disp, 300, 150, "by");
     graphics_draw_text(disp, 265, 160, "Shadow-Link");
-
-    graphics_draw_text(disp, 220, 220, "Trophy art by Vsio NeithR");
 }
 
 void render_button(display_context_t disp, int x, int y, char *text, sprite_t *sprite) {
@@ -201,9 +214,9 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
         move_up(gameSelection);
     }
 
-    if (keys_down.c[0].A) {
+    if (gameCount > 0 && keys_down.c[0].A) {
         on_game_selected(&games[gameSelection->selectedIndex]);
-    } else if(keys_down.c[0].R) {
+    } else if (keys_down.c[0].R) {
         state = ABOUT;
     }
 
@@ -221,7 +234,7 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
     draw_trophy_counter(disp, OFFSET_TROPHY_SILVER_X, 10, silverCount, silver);
     draw_trophy_counter(disp, OFFSET_TROPHY_GOLD_X, 10, goldCount, gold);
 
-    if(gameCount > 0) {
+    if (gameCount > 0) {
         // Game list
         for (int i = gameSelection->startIndex; i < gameSelection->endIndex; i++) {
             bool is_selected = i == gameSelection->selectedIndex;
@@ -275,22 +288,25 @@ void render_trophy_screen(display_context_t disp, Game game) {
     // Trophy list
     for (int i = trophySelection->startIndex; i < trophySelection->endIndex; i++) {
         bool is_selected = i == trophySelection->selectedIndex;
-        draw_trophy(10, ((30 * (i - trophySelection->startIndex)) + HEADER_HEIGHT), disp, game.trophies[i],
+        draw_trophy(10, ((31 * (i - trophySelection->startIndex)) + HEADER_HEIGHT), disp, game.trophies[i],
                     is_selected, show_spoiler);
     }
 }
 
 void loadGameData(Game *game, char *saveGame, SaveType saveType, void (*f)(Game *, char *)) {
     FILE *saveState = fopen(saveGame, "r");
-    if (saveState == NULL) {
-        debug_printf("Save data unavailable for %s\n", game->title);
-        return;
-    }
 
-    // Read save file
     char *save_data = malloc(get_size_of_save_data(saveType));
-    if (fread(save_data, get_size_of_save_data(saveType), 1, saveState)) {
-        debug_printf("Read %s save game into memory size: %d\n", game->title, get_size_of_save_data(saveType));
+    if (saveState == NULL) {
+        // Save is unavailable, just pass an empty buffer as the save file
+        // TODO: This might cause invalid trophy states, lets create a better way to fix this
+        debug_printf("Save data unavailable for %s\n", game->title);
+        memset(save_data, 0, get_size_of_save_data(saveType));
+    } else {
+        // Read save file
+        if (fread(save_data, get_size_of_save_data(saveType), 1, saveState)) {
+            debug_printf("Read %s save game into memory size: %d\n", game->title, get_size_of_save_data(saveType));
+        }
     }
 
     // Add and parse trophies
@@ -465,6 +481,12 @@ int main(void) {
         debug_printf_and_stop("Error initializing file system\n");
     }
 
+#ifdef VERSION
+    sprintf(about, "Shadow-Link - %s", xstr(VERSION));
+#else
+    sprintf(about, "Shadow-Link");
+#endif
+
     console_init();
     controller_init();
 
@@ -483,7 +505,7 @@ int main(void) {
 
     debug_printf_and_pause("Loading trophy data\n");
     // TODO: Make this dynamic
-    Game games[6];
+    Game games[50];
     for (int i = 0; i < detected_game_count; i++) {
         debug_printf("Loading trophy data for %s\n", detected_games[i].filename);
         char save_path[512];
@@ -527,6 +549,8 @@ int main(void) {
                 render_trophy_screen(disp, *selectedGame);
                 break;
         }
+
+        render_footer(disp);
 
         /* Force backbuffer flip */
         display_show(disp);
