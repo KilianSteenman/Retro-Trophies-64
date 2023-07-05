@@ -2,6 +2,8 @@
 
 An Everdrive trophy/achievement system that lets you earn 'trophies' for N64 games.
 
+![Screenshot](/screens/screenshot.png)
+
 ## How does it work?
 
 As we can't check the status of the game at runtime let alone render anything. 
