@@ -22,6 +22,8 @@
 #define VERSION dev
 #endif
 
+char* version = xstr(VERSION);
+
 typedef enum {
     ABOUT,
     GAME_SELECT,
@@ -425,7 +427,7 @@ void detect_games(SupportedGame *supported_games, int supported_game_count, Dete
 
 #ifdef N64_HARDWARE
     if (!debug_init_sdfs("sd:/", -1)) {
-        debug_printf_and_stop("Error initializing SD\n");
+        debug_printf_and_stop("Error initializing SD (%s)\n", version);
     }
 #endif
 
@@ -481,11 +483,7 @@ int main(void) {
         debug_printf_and_stop("Error initializing file system\n");
     }
 
-#ifdef VERSION
-    sprintf(about, "Shadow-Link - %s", xstr(VERSION));
-#else
-    sprintf(about, "Shadow-Link");
-#endif
+    sprintf(about, "Shadow-Link - %s", version);
 
     console_init();
     controller_init();
