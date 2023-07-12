@@ -22,7 +22,7 @@
 #define VERSION dev
 #endif
 
-char* version = xstr(VERSION);
+char *version = xstr(VERSION);
 
 typedef enum {
     ABOUT,
@@ -205,6 +205,21 @@ void render_button(display_context_t disp, int x, int y, char *text, sprite_t *s
 //    graphics_draw_sprite_trans(disp, x, y, sprite);
 }
 
+void render_game_info(display_context_t disp, Game *game) {
+    graphics_draw_bordered_box(disp, 170, 70, 300, 100, TILE_DEFAULT_BACKGROUND_COLOR, TILE_DEFAULT_BORDER_COLOR,
+                               BORDER_THICKNESS);
+    graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
+    graphics_draw_text(disp, 180, 80, "Game info");
+    graphics_set_color(TILE_DEFAULT_TEXT_COLOR, 0x0);
+    graphics_draw_text(disp, 180, 100, game->title);
+    graphics_draw_text(disp, 180, 110, game->filename);
+    if(game->region == PAL) {
+        graphics_draw_text(disp, 180, 120, "PAL");
+    } else {
+        graphics_draw_text(disp, 180, 120, "USA");
+    }
+}
+
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
     // Check controller input
     controller_scan();
@@ -244,6 +259,11 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
         }
     } else {
         graphics_draw_text(disp, 200, 120, "No supported games detected");
+    }
+
+    // TODO: Change this
+    if (gameCount > 0) {
+        render_game_info(disp, &games[gameSelection->selectedIndex]);
     }
 
     // Footer
@@ -516,7 +536,11 @@ int main(void) {
 #endif
         debug_printf("Loading game data '%s'\n", save_path);
 
+        // Copy some info for display
         strcpy(games[i].title, detected_games[i].supported_game.name);
+        strcpy(games[i].filename, detected_games[i].filename);
+        games[i].region = detected_games[i].supported_game.region;
+
         games[i].trophyCount = 0;
         loadGameData(&games[i], save_path, detected_games[i].supported_game.save_type,
                      detected_games[i].supported_game.trophy_data_loader);

@@ -5,6 +5,7 @@
 #ifndef N64_TROPHIES_SUPPORTED_GAMES_H
 #define N64_TROPHIES_SUPPORTED_GAMES_H
 
+#include "region.h"
 #include "save_type.h"
 #include "games/1080_snowboarding.h"
 #include "games/super_mario_64.h"
@@ -15,11 +16,6 @@
 #define SUPPORTED_GAME_COUNT 10
 
 typedef void (*TrophyDataLoader)(Game *, char *);
-
-typedef enum {
-    USA,
-    PAL
-} Region;
 
 typedef struct {
     char name[50];
