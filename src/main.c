@@ -32,6 +32,7 @@ typedef enum {
 
 State state = GAME_SELECT;
 Game *selectedGame;
+bool show_game_info;
 
 sprite_t *locked;
 sprite_t *bronze;
@@ -206,18 +207,23 @@ void render_button(display_context_t disp, int x, int y, char *text, sprite_t *s
 }
 
 void render_game_info(display_context_t disp, Game *game) {
-    graphics_draw_bordered_box(disp, 170, 70, 300, 100, TILE_DEFAULT_BACKGROUND_COLOR, TILE_DEFAULT_BORDER_COLOR,
+    char buffer[200];
+
+    graphics_draw_bordered_box(disp, 120, 70, 400, 100, TILE_DEFAULT_BACKGROUND_COLOR, TILE_DEFAULT_BORDER_COLOR,
                                BORDER_THICKNESS);
     graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
-    graphics_draw_text(disp, 180, 80, "Game info");
+    graphics_draw_text(disp, 140, 80, "Game info");
     graphics_set_color(TILE_DEFAULT_TEXT_COLOR, 0x0);
-    graphics_draw_text(disp, 180, 100, game->title);
-    graphics_draw_text(disp, 180, 110, game->filename);
-    if(game->region == PAL) {
-        graphics_draw_text(disp, 180, 120, "PAL");
+    sprintf(buffer, "Title:  %s", game->title);
+    graphics_draw_text(disp, 140, 100, buffer);
+    sprintf(buffer, "File:   %s", game->filename);
+    graphics_draw_text(disp, 140, 110, buffer);
+    if (game->region == PAL) {
+        sprintf(buffer, "Region: PAL");
     } else {
-        graphics_draw_text(disp, 180, 120, "USA");
+        sprintf(buffer, "Region: USA");
     }
+    graphics_draw_text(disp, 140, 120, buffer);
 }
 
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
@@ -235,6 +241,8 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
         on_game_selected(&games[gameSelection->selectedIndex]);
     } else if (keys_down.c[0].R) {
         state = ABOUT;
+    } else if(keys_down.c[0].L) {
+        show_game_info = !show_game_info;
     }
 
     // Render
@@ -261,8 +269,8 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
         graphics_draw_text(disp, 200, 120, "No supported games detected");
     }
 
-    // TODO: Change this
-    if (gameCount > 0) {
+    // Render game information
+    if (gameCount > 0 && show_game_info) {
         render_game_info(disp, &games[gameSelection->selectedIndex]);
     }
 
