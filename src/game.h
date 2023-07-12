@@ -8,12 +8,15 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "region.h"
 #include "trophy.h"
 
 #define MAX_TROPHY_COUNT 50
 
 typedef struct {
     char title[50];
+    char filename[100];
+    Region region;
     Trophy trophies[MAX_TROPHY_COUNT];
     int trophyCount;
 } Game;

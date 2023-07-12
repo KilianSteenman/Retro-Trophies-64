@@ -22,7 +22,7 @@
 #define VERSION dev
 #endif
 
-char* version = xstr(VERSION);
+char *version = xstr(VERSION);
 
 typedef enum {
     ABOUT,
@@ -32,6 +32,7 @@ typedef enum {
 
 State state = GAME_SELECT;
 Game *selectedGame;
+bool show_game_info;
 
 sprite_t *locked;
 sprite_t *bronze;
@@ -205,6 +206,26 @@ void render_button(display_context_t disp, int x, int y, char *text, sprite_t *s
 //    graphics_draw_sprite_trans(disp, x, y, sprite);
 }
 
+void render_game_info(display_context_t disp, Game *game) {
+    char buffer[200];
+
+    graphics_draw_bordered_box(disp, 120, 70, 400, 100, TILE_DEFAULT_BACKGROUND_COLOR, TILE_DEFAULT_BORDER_COLOR,
+                               BORDER_THICKNESS);
+    graphics_set_color(SCREEN_TITLE_COLOR, 0x0);
+    graphics_draw_text(disp, 140, 80, "Game info");
+    graphics_set_color(TILE_DEFAULT_TEXT_COLOR, 0x0);
+    sprintf(buffer, "Title:  %s", game->title);
+    graphics_draw_text(disp, 140, 100, buffer);
+    sprintf(buffer, "File:   %s", game->filename);
+    graphics_draw_text(disp, 140, 110, buffer);
+    if (game->region == PAL) {
+        sprintf(buffer, "Region: PAL");
+    } else {
+        sprintf(buffer, "Region: USA");
+    }
+    graphics_draw_text(disp, 140, 120, buffer);
+}
+
 void render_game_select_screen(display_context_t disp, Game *games, int gameCount) {
     // Check controller input
     controller_scan();
@@ -220,6 +241,8 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
         on_game_selected(&games[gameSelection->selectedIndex]);
     } else if (keys_down.c[0].R) {
         state = ABOUT;
+    } else if(keys_down.c[0].L) {
+        show_game_info = !show_game_info;
     }
 
     // Render
@@ -244,6 +267,11 @@ void render_game_select_screen(display_context_t disp, Game *games, int gameCoun
         }
     } else {
         graphics_draw_text(disp, 200, 120, "No supported games detected");
+    }
+
+    // Render game information
+    if (gameCount > 0 && show_game_info) {
+        render_game_info(disp, &games[gameSelection->selectedIndex]);
     }
 
     // Footer
@@ -516,7 +544,11 @@ int main(void) {
 #endif
         debug_printf("Loading game data '%s'\n", save_path);
 
+        // Copy some info for display
         strcpy(games[i].title, detected_games[i].supported_game.name);
+        strcpy(games[i].filename, detected_games[i].filename);
+        games[i].region = detected_games[i].supported_game.region;
+
         games[i].trophyCount = 0;
         loadGameData(&games[i], save_path, detected_games[i].supported_game.save_type,
                      detected_games[i].supported_game.trophy_data_loader);
