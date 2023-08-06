@@ -4,6 +4,14 @@ An Everdrive trophy/achievement system that lets you earn 'trophies' for N64 gam
 
 ![Screenshot](/screens/screenshot.png)
 
+## Supported Games
+
+- 1080 Snowboarding
+- Mario Kart 64
+- Super Mario 64
+- Super Smash Bros
+- The Legend of Zelda: Ocarina of Time
+
 ## How does it work?
 
 As we can't check the status of the game at runtime let alone render anything. 
